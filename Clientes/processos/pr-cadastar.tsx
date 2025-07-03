@@ -96,7 +96,7 @@ export default function CadastrarProcesso() {
               <td><input type="number" name="Advogados_idAdvogados" value={processo.Advogados_idAdvogados} onChange={handleChange} required /></td>
             </tr>
             <tr>
-              <td>ID da Área:</td>
+              <td>id da Área:</td>
               <td><input type="number" name="Areas_idareas" value={processo.Areas_idareas} onChange={handleChange} required /></td>
             </tr>
             <tr>
