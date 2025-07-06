@@ -1,13 +1,32 @@
-import { StrictMode } from 'react';
+import { StrictMode, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Link, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import './main.css';
+import SplashScreen from './Tela-Temporaria/SplashScreen';
 
+//Área de clientes
+import Processos from './Clientes/processos/processos-clientes';
+import Advogados from './Clientes/advogados/advogados-clientes';
+import Clientes from './Clientes/clientes/clientes-clientes';
 
-import Processos from './Clientes/processos/processos';
-import Advogados from './Clientes/advogados/advogados';
-import Clientes from './Clientes/clientes/clientes';
+//Área do adm
+import AdvogadoAdm from './Admin/advogados/advogados-adm';
+import ClienteAdm from './Admin/clientes/clientes-adm';
+import ProcessoAdm from './Admin/processos/processos-adm';
 
+function Main() {
+  const [showSplash, setShowSplash] = useState(true);
 
+  return (
+    <>
+      {showSplash ? (
+        <SplashScreen onFinish={() => setShowSplash(false)} />
+      ) : (
+        <App />
+      )}
+    </>
+  );
+}
 
 function App() {
   return (
@@ -15,31 +34,21 @@ function App() {
       <div>
         <nav style={{ marginBottom: '20px' }}>
           <Link to="/processos">Processos</Link>
-          <Link to="/advogados">advogados</Link>
-          <Link to="/clientes">clientes</Link>
-          
+          <Link to="/advogados">Advogados</Link>
+          <Link to="/clientes">Clientes</Link>
+          <Link to="/admin/processos">[ADM] Processos</Link>
+          <Link to="/admin/advogados">[ADM] Advogados</Link>
+          <Link to="/admin/clientes">[ADM] Clientes</Link>
         </nav>
 
         <Routes>
-          {/* Rota raiz mostrando mensagem */}
           <Route path="/" element={<h1>Bem-vindo à aplicação!</h1>} />
-
-          {/* Se preferir redirecionar o / para listar processos, descomente a linha abaixo e comente a anterior */}
-          {/* <Route path="/" element={<Navigate to="/processos/listar" replace />} /> */}
-
-          {/*<Route path="/advogados/cadastrar" element={<AdCadastrar />} />
-          <Route path="/advogados/listar" element={<AdListar />} />
-          <Route path="/clientes/cadastrar" element={<ClCadastrar />} />
-          <Route path="/clientes/listar" element={<ClListar />} />
-          */}
           <Route path="/processos" element={<Processos />} />
           <Route path="/clientes" element={<Clientes />} />
           <Route path="/advogados" element={<Advogados />} />
-
-          {//Route path="/processos/listar" element={<PrListar />} />
-          }
-
-          {/* Rota para página não encontrada */}
+          <Route path="/admin/processos" element={<ProcessoAdm />} />
+          <Route path="/admin/advogados" element={<AdvogadoAdm />} />
+          <Route path="/admin/clientes" element={<ClienteAdm />} />
           <Route path="*" element={<h1>Página não encontrada</h1>} />
         </Routes>
       </div>
@@ -50,6 +59,6 @@ function App() {
 const root = createRoot(document.getElementById('root')!);
 root.render(
   <StrictMode>
-    <App />
+    <Main />
   </StrictMode>
 );
