@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Roboto:wght@400;500&display=swap');
+
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  background: url('/Tela-Temporaria/fundo.jpeg') no-repeat center center;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: zoomFadeIn 1.2s ease forwards;
+  transition: opacity 1s ease; /* Transição suave na opacidade */
+  z-index: 9999;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(105, 0, 0, 0.6), rgba(0, 0, 0, 0.5));
+  backdrop-filter: blur(3px);
+  z-index: 0;
+}
+
+.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.content {
+  position: relative;
+  text-align: center;
+  color: #ffffff;
+  z-index: 1;
+  animation: slideUp 1s ease-out;
+}
+
+.title {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.8rem;
+  color: #d4af37;
+  opacity: 0;
+  animation: fadeSlideIn 1.2s ease forwards;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.subtitle {
+  font-family: 'Roboto', sans-serif;
+  font-size: 1.3rem;
+  color: #ffffff;
+  margin-top: 15px;
+  margin-bottom: 35px;
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
+  animation-delay: 0.6s;
+  text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.2);
+}
+
+.enter-button {
+  padding: 14px 45px;
+  font-size: 1.15rem;
+  background: linear-gradient(135deg, #d4af37, #f5d56e);
+  color: #1c1c1c;
+  border: none;
+  border-radius: 50px;
+  font-weight: bold;
+  font-family: 'Roboto', sans-serif;
+  cursor: pointer;
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
+  animation-delay: 1.2s;
+  transition: all 0.4s ease;
+  box-shadow: 0 4px 10px rgba(212, 175, 55, 0.4);
+  letter-spacing: 0.5px;
+}
+
+.enter-button:hover {
+  background: linear-gradient(135deg, #f5d56e, #d4af37);
+  color: #1c1c1c;
+  transform: translateY(-2px) scale(1.07);
+  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.6);
+}
+
+/* Animações */
+@keyframes zoomFadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
