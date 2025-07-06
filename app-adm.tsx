@@ -1,7 +1,7 @@
 import { Routes, Route, Link } from 'react-router-dom';
-import Processos from './Clientes/processos/processos-clientes';
-import Advogados from './Clientes/advogados/advogados-clientes';
-import Clientes from './Clientes/clientes/clientes-clientes';
+import Processos from './Admin/processos/processos-adm';
+import Advogados from './Admin/advogados/advogados-adm';
+import Clientes from './Admin/clientes/clientes-adm';
 import './app-adm.css';
 import imagemFundo from './Imagens/imagem.png';
 
