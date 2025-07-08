@@ -3,7 +3,7 @@ import Processos from './Admin/processos/processos-adm';
 import Advogados from './Admin/advogados/advogados-adm';
 import Clientes from './Admin/clientes/clientes-adm';
 import './app-adm.css';
-import imagemFundo from './Imagens/imagem.png';
+
 
 
 interface AppAdminProps {
@@ -13,7 +13,7 @@ interface AppAdminProps {
 export default function AppAdmin({ voltar }: AppAdminProps) {
   return (
     <div>
-      <img src={imagemFundo} alt="Fundo" className="imagem-lateral-fixa" />
+     
       <nav className="menu-fixo">
         <Link to="/" className="menu-link">Início</Link>
         <Link to="/processos" className="menu-link">Processos</Link>

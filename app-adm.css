@@ -101,3 +101,11 @@ nav.menu-fixo {
   pointer-events: none; /* evita que atrapalhe cliques */
   user-select: none;
 }
+body {
+  background-image: url('./Imagens/imagem.png'); /* ou o caminho certo */
+  background-repeat: no-repeat;
+  background-position: bottom left;
+  background-size: 180px auto; /* ou ajuste o tamanho que quiser */
+  background-attachment: fixed;
+  background-color: #fdf9f9; /* cor clara para contraste */
+}

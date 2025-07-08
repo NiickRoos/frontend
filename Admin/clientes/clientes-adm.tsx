@@ -1,4 +1,6 @@
+// ClientesAdm.tsx padronizado
 import { useEffect, useState } from 'react';
+import '../Padrao.css';
 
 interface Cliente {
   idClientes: number;
@@ -16,7 +18,6 @@ export default function ClientesAdm() {
   const [editarCliente, setEditarCliente] = useState<Cliente | null>(null);
   const [erro, setErro] = useState<string | null>(null);
 
-  // Carrega a lista de clientes
   useEffect(() => {
     fetch('http://localhost:3000/clientes')
       .then(res => {
@@ -27,17 +28,12 @@ export default function ClientesAdm() {
       .catch(err => setErro(err.message));
   }, []);
 
-  // Atualiza os campos do cliente em edição
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (!editarCliente) return;
     const { name, value } = e.target;
-    setEditarCliente({
-      ...editarCliente,
-      [name]: value
-    });
+    setEditarCliente({ ...editarCliente, [name]: value });
   };
 
-  // Atualiza cliente via API
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editarCliente) return;
@@ -64,21 +60,17 @@ export default function ClientesAdm() {
     }
   };
 
-  // Deleta cliente via API
   const handleDelete = async (id: number) => {
     if (!window.confirm('Tem certeza que deseja deletar este cliente?')) return;
 
     try {
-      const resposta = await fetch(`http://localhost:3000/clientes/${id}`, {
-        method: 'DELETE',
-      });
-
+      const resposta = await fetch(`http://localhost:3000/clientes/${id}`, { method: 'DELETE' });
       const dados = await resposta.json();
 
       if (resposta.ok) {
         alert('Cliente deletado com sucesso!');
         setClientes(clientes.filter(c => c.idClientes !== id));
-        if (editarCliente && editarCliente.idClientes === id) setEditarCliente(null);
+        if (editarCliente?.idClientes === id) setEditarCliente(null);
       } else {
         alert(`Erro: ${dados.error}`);
       }
@@ -90,105 +82,62 @@ export default function ClientesAdm() {
 
   return (
     <div>
-      <h2>Gerenciar Clientes (Admin)</h2>
+      <h2>Painel de Gerenciamento de Clientes</h2>
+      <p>Abaixo estão listados todos os clientes cadastrados no sistema. Você pode editar ou remover registros.</p>
+
       {erro && <p style={{ color: 'red' }}>{erro}</p>}
 
-      <table border={1} cellPadding={5} cellSpacing={0}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>Telefone</th>
-            <th>Documentos</th>
-            <th>Tipo Documento</th>
-            <th>Endereço</th>
-            <th>Estado</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {clientes.map(c => (
-            <tr key={c.idClientes}>
-              <td>{c.idClientes}</td>
-              <td>{c.nome}</td>
-              <td>{c.email}</td>
-              <td>{c.telefone}</td>
-              <td>{c.documentos}</td>
-              <td>{c.tipo_de_documento}</td>
-              <td>{c.endereco}</td>
-              <td>{c.estado}</td>
-              <td>
-                <button onClick={() => setEditarCliente(c)}>Editar</button>{' '}
-                <button onClick={() => handleDelete(c.idClientes)}>Deletar</button>
-              </td>
+      <div className="tabela-container">
+        <table className="tabela">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Telefone</th>
+              <th>Documentos</th>
+              <th>Tipo Documento</th>
+              <th>Endereço</th>
+              <th>Estado</th>
+              <th>Ações</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {clientes.map(c => (
+              <tr key={c.idClientes}>
+                <td>{c.idClientes}</td>
+                <td>{c.nome}</td>
+                <td>{c.email}</td>
+                <td>{c.telefone}</td>
+                <td>{c.documentos}</td>
+                <td>{c.tipo_de_documento}</td>
+                <td>{c.endereco}</td>
+                <td>{c.estado}</td>
+                <td>
+                  <button className="botao-editar" onClick={() => setEditarCliente(c)}>Editar</button>
+                  <button className="botao-deletar" onClick={() => handleDelete(c.idClientes)}>Excluir</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {editarCliente && (
-        <div style={{ marginTop: '20px' }}>
-          <h3>Editar Cliente ID: {editarCliente.idClientes}</h3>
+        <div className="formulario-edicao">
+          <h3>Editar Informações do Cliente</h3>
           <form onSubmit={handleUpdate}>
-            <input
-              type="text"
-              name="nome"
-              placeholder="Nome"
-              value={editarCliente.nome}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={editarCliente.email}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="text"
-              name="telefone"
-              placeholder="Telefone"
-              value={editarCliente.telefone}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="text"
-              name="documentos"
-              placeholder="Documentos"
-              value={editarCliente.documentos}
-              onChange={handleChange}
-              required
-            />
-            <select
-              name="tipo_de_documento"
-              value={editarCliente.tipo_de_documento}
-              onChange={handleChange}
-              required
-            >
+            <input type="text" name="nome" placeholder="Nome completo" value={editarCliente.nome} onChange={handleChange} required />
+            <input type="email" name="email" placeholder="Email" value={editarCliente.email} onChange={handleChange} required />
+            <input type="text" name="telefone" placeholder="Telefone" value={editarCliente.telefone} onChange={handleChange} required />
+            <input type="text" name="documentos" placeholder="Documentos" value={editarCliente.documentos} onChange={handleChange} required />
+            <select name="tipo_de_documento" value={editarCliente.tipo_de_documento} onChange={handleChange} required>
               <option value="CPF">CPF</option>
               <option value="CNPJ">CNPJ</option>
             </select>
-            <input
-              type="text"
-              name="endereco"
-              placeholder="Endereço"
-              value={editarCliente.endereco}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="text"
-              name="estado"
-              placeholder="Estado"
-              value={editarCliente.estado}
-              onChange={handleChange}
-              required
-            />
-            <button type="submit">Atualizar</button>{' '}
+            <input type="text" name="endereco" placeholder="Endereço" value={editarCliente.endereco} onChange={handleChange} required />
+            <input type="text" name="estado" placeholder="Estado" value={editarCliente.estado} onChange={handleChange} required />
+            <button type="submit">Salvar Alterações</button>
             <button type="button" onClick={() => setEditarCliente(null)}>Cancelar</button>
           </form>
         </div>

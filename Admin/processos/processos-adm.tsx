@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import '../Padrao.css';
 
 interface Processo {
   idprocessos: number;
@@ -17,28 +18,25 @@ export default function PrAdm() {
   const [editarProcesso, setEditarProcesso] = useState<Processo | null>(null);
   const [erro, setErro] = useState<string | null>(null);
 
-  // Carregar lista de processos
   useEffect(() => {
     fetch('http://localhost:3000/processos')
-      .then((res) => {
+      .then(res => {
         if (!res.ok) throw new Error('Erro ao buscar processos');
         return res.json();
       })
-      .then((data) => setProcessos(data))
-      .catch((err) => setErro(err.message));
+      .then(data => setProcessos(data))
+      .catch(err => setErro(err.message));
   }, []);
 
-  // Atualizar os campos do processo em edição
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (!editarProcesso) return;
     const { name, value } = e.target;
     setEditarProcesso({
       ...editarProcesso,
-      [name]: name.includes('id') ? Number(value) : value
+      [name]: name.includes('id') ? Number(value) : value,
     });
   };
 
-  // Enviar atualização para o backend
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editarProcesso) return;
@@ -54,7 +52,6 @@ export default function PrAdm() {
 
       if (resposta.ok) {
         alert('Processo atualizado com sucesso!');
-        // Atualizar lista local para refletir mudança
         setProcessos(processos.map(p => p.idprocessos === editarProcesso.idprocessos ? editarProcesso : p));
         setEditarProcesso(null);
       } else {
@@ -66,7 +63,6 @@ export default function PrAdm() {
     }
   };
 
-  // Deletar processo
   const handleDelete = async (id: number) => {
     if (!window.confirm('Tem certeza que deseja deletar este processo?')) return;
 
@@ -80,7 +76,7 @@ export default function PrAdm() {
       if (resposta.ok) {
         alert('Processo deletado com sucesso!');
         setProcessos(processos.filter(p => p.idprocessos !== id));
-        if (editarProcesso && editarProcesso.idprocessos === id) setEditarProcesso(null);
+        if (editarProcesso?.idprocessos === id) setEditarProcesso(null);
       } else {
         alert(`Erro: ${dados.error}`);
       }
@@ -92,48 +88,52 @@ export default function PrAdm() {
 
   return (
     <div>
-      <h2>Gerenciar Processos (Admin)</h2>
+      <h2>Painel de Gerenciamento de Processos</h2>
+      <p>Abaixo estão listados todos os processos cadastrados no sistema. Você pode editar ou remover registros.</p>
+
       {erro && <p style={{ color: 'red' }}>{erro}</p>}
 
-      <table border={1} cellPadding={5} cellSpacing={0}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Número</th>
-            <th>Descrição</th>
-            <th>Status</th>
-            <th>Abertura</th>
-            <th>Encerramento</th>
-            <th>ID Cliente</th>
-            <th>ID Advogado</th>
-            <th>ID Área</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {processos.map((p) => (
-            <tr key={p.idprocessos}>
-              <td>{p.idprocessos}</td>
-              <td>{p.numero_processo}</td>
-              <td>{p.descricao}</td>
-              <td>{p.status}</td>
-              <td>{p.data_abertura}</td>
-              <td>{p.data_encerramento || '---'}</td>
-              <td>{p.Clientes_idClientes}</td>
-              <td>{p.Advogados_idAdvogados}</td>
-              <td>{p.Areas_idareas}</td>
-              <td>
-                <button onClick={() => setEditarProcesso(p)}>Editar</button>{' '}
-                <button onClick={() => handleDelete(p.idprocessos)}>Deletar</button>
-              </td>
+      <div className="tabela-container">
+        <table className="tabela">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Número</th>
+              <th>Descrição</th>
+              <th>Status</th>
+              <th>Abertura</th>
+              <th>Encerramento</th>
+              <th>ID Cliente</th>
+              <th>ID Advogado</th>
+              <th>ID Área</th>
+              <th>Ações</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {processos.map((p) => (
+              <tr key={p.idprocessos}>
+                <td>{p.idprocessos}</td>
+                <td>{p.numero_processo}</td>
+                <td>{p.descricao}</td>
+                <td>{p.status}</td>
+                <td>{p.data_abertura}</td>
+                <td>{p.data_encerramento || '---'}</td>
+                <td>{p.Clientes_idClientes}</td>
+                <td>{p.Advogados_idAdvogados}</td>
+                <td>{p.Areas_idareas}</td>
+                <td>
+                  <button className="botao-editar" onClick={() => setEditarProcesso(p)}>Editar</button>
+                  <button className="botao-deletar" onClick={() => handleDelete(p.idprocessos)}>Excluir</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {editarProcesso && (
-        <div style={{ marginTop: '20px' }}>
-          <h3>Editar Processo ID: {editarProcesso.idprocessos}</h3>
+        <div className="formulario-edicao">
+          <h3>Editar Informações do Processo</h3>
           <form onSubmit={handleUpdate}>
             <input
               type="text"
@@ -196,7 +196,7 @@ export default function PrAdm() {
               onChange={handleChange}
               required
             />
-            <button type="submit">Atualizar</button>{' '}
+            <button type="submit">Salvar Alterações</button>
             <button type="button" onClick={() => setEditarProcesso(null)}>Cancelar</button>
           </form>
         </div>

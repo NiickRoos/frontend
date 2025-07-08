@@ -3,7 +3,7 @@ import Processos from './Clientes/processos/processos-clientes';
 import Advogados from './Clientes/advogados/advogados-clientes';
 import Clientes from './Clientes/clientes/clientes-clientes';
 import './app-cliente.css';
-import imagemFundo from './Imagens/imagem.png';
+
 
 
 interface AppClienteProps {
@@ -13,12 +13,8 @@ interface AppClienteProps {
 export default function AppCliente({ voltar }: AppClienteProps) {
   return (
     <div>
-      {/* ✅ Imagem lateral fixa */}
-   
-
-   <img src={imagemFundo} alt="Fundo" className="imagem-lateral-fixa" />
-
-
+     
+  
 
       <nav className="menu-fixo">
         <Link to="/" className="menu-link">Início</Link>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import './ad.css';
+import '../Padrao.css';
+
 interface Advogado {
   idAdvogados: number;
   nome: string;
@@ -14,7 +15,6 @@ export default function AdvogadosAdm() {
   const [editarAdvogado, setEditarAdvogado] = useState<Advogado | null>(null);
   const [erro, setErro] = useState<string | null>(null);
 
-  // Carrega advogados
   useEffect(() => {
     fetch('http://localhost:3000/advogados')
       .then(res => {
@@ -25,7 +25,6 @@ export default function AdvogadosAdm() {
       .catch(err => setErro(err.message));
   }, []);
 
-  // Atualiza os campos do advogado em edição
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!editarAdvogado) return;
     const { name, value } = e.target;
@@ -35,7 +34,6 @@ export default function AdvogadosAdm() {
     });
   };
 
-  // Atualiza advogado via API
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editarAdvogado) return;
@@ -51,7 +49,9 @@ export default function AdvogadosAdm() {
 
       if (resposta.ok) {
         alert('Advogado atualizado com sucesso!');
-        setAdvogados(advogados.map(a => (a.idAdvogados === editarAdvogado.idAdvogados ? editarAdvogado : a)));
+        setAdvogados(advogados.map(a =>
+          a.idAdvogados === editarAdvogado.idAdvogados ? editarAdvogado : a
+        ));
         setEditarAdvogado(null);
       } else {
         alert(`Erro: ${dados.error}`);
@@ -62,7 +62,6 @@ export default function AdvogadosAdm() {
     }
   };
 
-  // Deleta advogado via API
   const handleDelete = async (id: number) => {
     if (!window.confirm('Tem certeza que deseja deletar este advogado?')) return;
 
@@ -76,7 +75,7 @@ export default function AdvogadosAdm() {
       if (resposta.ok) {
         alert('Advogado deletado com sucesso!');
         setAdvogados(advogados.filter(a => a.idAdvogados !== id));
-        if (editarAdvogado && editarAdvogado.idAdvogados === id) setEditarAdvogado(null);
+        if (editarAdvogado?.idAdvogados === id) setEditarAdvogado(null);
       } else {
         alert(`Erro: ${dados.error}`);
       }
@@ -88,47 +87,51 @@ export default function AdvogadosAdm() {
 
   return (
     <div>
-      <h2>Gerenciar Advogados (Admin)</h2>
+      <h2>Painel de Gerenciamento de Advogados</h2>
+      <p>Abaixo estão listados todos os advogados cadastrados no sistema. Você pode editar ou remover registros.</p>
+
       {erro && <p style={{ color: 'red' }}>{erro}</p>}
 
-      <table border={1} cellPadding={5} cellSpacing={0}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>OAB</th>
-            <th>Email</th>
-            <th>Telefone</th>
-            <th>Especialidade</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {advogados.map(a => (
-            <tr key={a.idAdvogados}>
-              <td>{a.idAdvogados}</td>
-              <td>{a.nome}</td>
-              <td>{a.oab}</td>
-              <td>{a.email}</td>
-              <td>{a.telefone}</td>
-              <td>{a.especialidade}</td>
-              <td>
-                <button onClick={() => setEditarAdvogado(a)}>Editar</button>{' '}
-                <button onClick={() => handleDelete(a.idAdvogados)}>Deletar</button>
-              </td>
+      <div className="tabela-container">
+        <table className="tabela">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome Completo</th>
+              <th>Registro OAB</th>
+              <th>Email de Contato</th>
+              <th>Telefone</th>
+              <th>Especialidade</th>
+              <th>Ações</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {advogados.map(a => (
+              <tr key={a.idAdvogados}>
+                <td>{a.idAdvogados}</td>
+                <td>{a.nome}</td>
+                <td>{a.oab}</td>
+                <td>{a.email}</td>
+                <td>{a.telefone}</td>
+                <td>{a.especialidade}</td>
+                <td>
+                  <button className="botao-editar" onClick={() => setEditarAdvogado(a)}>Editar</button>
+                  <button className="botao-deletar" onClick={() => handleDelete(a.idAdvogados)}>Excluir</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {editarAdvogado && (
-        <div style={{ marginTop: '20px' }}>
-          <h3>Editar Advogado ID: {editarAdvogado.idAdvogados}</h3>
+        <div className="formulario-edicao">
+          <h3>Editar Informações do Advogado</h3>
           <form onSubmit={handleUpdate}>
             <input
               type="text"
               name="nome"
-              placeholder="Nome"
+              placeholder="Nome completo"
               value={editarAdvogado.nome}
               onChange={handleChange}
               required
@@ -136,7 +139,7 @@ export default function AdvogadosAdm() {
             <input
               type="text"
               name="oab"
-              placeholder="OAB"
+              placeholder="Número da OAB"
               value={editarAdvogado.oab}
               onChange={handleChange}
               required
@@ -144,7 +147,7 @@ export default function AdvogadosAdm() {
             <input
               type="email"
               name="email"
-              placeholder="Email"
+              placeholder="Email de contato"
               value={editarAdvogado.email}
               onChange={handleChange}
               required
@@ -160,12 +163,12 @@ export default function AdvogadosAdm() {
             <input
               type="text"
               name="especialidade"
-              placeholder="Especialidade"
+              placeholder="Área de especialização"
               value={editarAdvogado.especialidade}
               onChange={handleChange}
               required
             />
-            <button type="submit">Atualizar</button>{' '}
+            <button type="submit">Salvar Alterações</button>
             <button type="button" onClick={() => setEditarAdvogado(null)}>Cancelar</button>
           </form>
         </div>

@@ -1,0 +1,102 @@
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.tabela th,
+.tabela td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.tabela th {
+  background-color: #600000;
+  color: #fff;
+}
+
+.tabela tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.tabela tr:hover {
+  background-color: #f1f1f1;
+}
+
+.botao-editar,
+.botao-deletar {
+  padding: 6px 12px;
+  margin: 2px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.botao-editar {
+  background-color: #7cb7de;
+  color: white;
+}
+
+.botao-deletar {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.formulario-edicao {
+  background: #fff;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 20px;
+  max-width: 600px;
+}
+
+.formulario-edicao input,
+.formulario-edicao select,
+.formulario-edicao button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.formulario-edicao button[type="submit"] {
+  background-color: #cc2e2e;
+  color: white;
+}
+
+.formulario-edicao button[type="button"] {
+  background-color: #95a5a6;
+  color: white;
+}
+.tabela-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.tabela {
+  width: 100%;
+  min-width: 900px; /* Define largura mínima para evitar quebra dos cabeçalhos */
+  border-collapse: collapse;
+}
+
+.tabela th, .tabela td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+  word-break: break-word;
+}
+
+.tabela th {
+  background-color: #600000;
+  color: white;
+  font-weight: bold;
+  white-space: nowrap;
+}
