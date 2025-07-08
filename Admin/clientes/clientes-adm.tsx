@@ -1,4 +1,3 @@
-// ClientesAdm.tsx padronizado
 import { useEffect, useState } from 'react';
 import '../Padrao.css';
 
@@ -13,10 +12,18 @@ interface Cliente {
   estado: string;
 }
 
+interface Alteracao {
+  campo: string;
+  valorAnterior: string;
+  novoValor: string;
+}
+
 export default function ClientesAdm() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [editarCliente, setEditarCliente] = useState<Cliente | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [alteracoes, setAlteracoes] = useState<Alteracao[]>([]);
+  const [mostrarAlteracoes, setMostrarAlteracoes] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:3000/clientes')
@@ -30,7 +37,23 @@ export default function ClientesAdm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (!editarCliente) return;
+
     const { name, value } = e.target;
+    const valorAnterior = (editarCliente as any)[name];
+
+    if (valorAnterior !== value) {
+      setAlteracoes(prev => {
+        const existe = prev.find(a => a.campo === name);
+        if (existe) {
+          return prev.map(a =>
+            a.campo === name ? { ...a, novoValor: value } : a
+          );
+        } else {
+          return [...prev, { campo: name, valorAnterior, novoValor: value }];
+        }
+      });
+    }
+
     setEditarCliente({ ...editarCliente, [name]: value });
   };
 
@@ -51,6 +74,8 @@ export default function ClientesAdm() {
         alert('Cliente atualizado com sucesso!');
         setClientes(clientes.map(c => c.idClientes === editarCliente.idClientes ? editarCliente : c));
         setEditarCliente(null);
+        setAlteracoes([]);
+        setMostrarAlteracoes(false);
       } else {
         alert(`Erro: ${dados.error}`);
       }
@@ -70,7 +95,10 @@ export default function ClientesAdm() {
       if (resposta.ok) {
         alert('Cliente deletado com sucesso!');
         setClientes(clientes.filter(c => c.idClientes !== id));
-        if (editarCliente?.idClientes === id) setEditarCliente(null);
+        if (editarCliente?.idClientes === id) {
+          setEditarCliente(null);
+          setAlteracoes([]);
+        }
       } else {
         alert(`Erro: ${dados.error}`);
       }
@@ -81,11 +109,11 @@ export default function ClientesAdm() {
   };
 
   return (
-    <div>
-      <h2>Painel de Gerenciamento de Clientes</h2>
-      <p>Abaixo estão listados todos os clientes cadastrados no sistema. Você pode editar ou remover registros.</p>
+    <div className="container-principal">
+      <h2 className="titulo-principal">Painel de Gerenciamento de Clientes</h2>
+      <p className="subtitulo">Abaixo estão listados todos os clientes cadastrados no sistema.</p>
 
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
+      {erro && <p className="mensagem mensagem-erro">{erro}</p>}
 
       <div className="tabela-container">
         <table className="tabela">
@@ -96,7 +124,7 @@ export default function ClientesAdm() {
               <th>Email</th>
               <th>Telefone</th>
               <th>Documentos</th>
-              <th>Tipo Documento</th>
+              <th>Tipo</th>
               <th>Endereço</th>
               <th>Estado</th>
               <th>Ações</th>
@@ -114,8 +142,12 @@ export default function ClientesAdm() {
                 <td>{c.endereco}</td>
                 <td>{c.estado}</td>
                 <td>
-                  <button className="botao-editar" onClick={() => setEditarCliente(c)}>Editar</button>
-                  <button className="botao-deletar" onClick={() => handleDelete(c.idClientes)}>Excluir</button>
+                  <button className="botao botao-editar" onClick={() => {
+                    setEditarCliente(c);
+                    setAlteracoes([]);
+                    setMostrarAlteracoes(false);
+                  }}>Editar</button>
+                  <button className="botao botao-deletar" onClick={() => handleDelete(c.idClientes)}>Excluir</button>
                 </td>
               </tr>
             ))}
@@ -124,8 +156,8 @@ export default function ClientesAdm() {
       </div>
 
       {editarCliente && (
-        <div className="formulario-edicao">
-          <h3>Editar Informações do Cliente</h3>
+        <div className="formulario-container">
+          <h3 className="formulario-titulo">Editar Cliente #{editarCliente.idClientes}</h3>
           <form onSubmit={handleUpdate}>
             <input type="text" name="nome" placeholder="Nome completo" value={editarCliente.nome} onChange={handleChange} required />
             <input type="email" name="email" placeholder="Email" value={editarCliente.email} onChange={handleChange} required />
@@ -137,9 +169,45 @@ export default function ClientesAdm() {
             </select>
             <input type="text" name="endereco" placeholder="Endereço" value={editarCliente.endereco} onChange={handleChange} required />
             <input type="text" name="estado" placeholder="Estado" value={editarCliente.estado} onChange={handleChange} required />
-            <button type="submit">Salvar Alterações</button>
-            <button type="button" onClick={() => setEditarCliente(null)}>Cancelar</button>
+
+            <div className="formulario-botoes">
+              <button type="button" className="botao botao-secundario" onClick={() => setMostrarAlteracoes(!mostrarAlteracoes)}>
+                {mostrarAlteracoes ? 'Ocultar Alterações' : 'Ver Alterações'}
+              </button>
+              <button type="button" className="botao botao-secundario" onClick={() => {
+                setEditarCliente(null);
+                setAlteracoes([]);
+                setMostrarAlteracoes(false);
+              }}>
+                Cancelar
+              </button>
+              <button type="submit" className="botao botao-primario">Salvar Alterações</button>
+            </div>
           </form>
+
+          {mostrarAlteracoes && alteracoes.length > 0 && (
+            <div className="tabela-alteracoes-container">
+              <h4>Resumo das Alterações</h4>
+              <table className="tabela-alteracoes">
+                <thead>
+                  <tr>
+                    <th>Campo</th>
+                    <th>Valor Anterior</th>
+                    <th>Novo Valor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {alteracoes.map((alt, index) => (
+                    <tr key={index}>
+                      <td>{alt.campo.replace(/_/g, ' ')}</td>
+                      <td>{alt.valorAnterior}</td>
+                      <td>{alt.novoValor}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </div>

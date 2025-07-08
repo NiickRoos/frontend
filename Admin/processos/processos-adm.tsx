@@ -13,10 +13,18 @@ interface Processo {
   Areas_idareas: number;
 }
 
+interface Alteracao {
+  campo: string;
+  valorAnterior: any;
+  novoValor: any;
+}
+
 export default function PrAdm() {
   const [processos, setProcessos] = useState<Processo[]>([]);
   const [editarProcesso, setEditarProcesso] = useState<Processo | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [alteracoes, setAlteracoes] = useState<Alteracao[]>([]);
+  const [mostrarAlteracoes, setMostrarAlteracoes] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:3000/processos')
@@ -31,9 +39,25 @@ export default function PrAdm() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (!editarProcesso) return;
     const { name, value } = e.target;
+    const novoValor = name.includes('id') ? Number(value) : value;
+
+    const valorAnterior = (editarProcesso as any)[name];
+    if (valorAnterior !== novoValor) {
+      setAlteracoes(prev => {
+        const existente = prev.find(a => a.campo === name);
+        if (existente) {
+          return prev.map(a =>
+            a.campo === name ? { ...a, novoValor } : a
+          );
+        } else {
+          return [...prev, { campo: name, valorAnterior, novoValor }];
+        }
+      });
+    }
+
     setEditarProcesso({
       ...editarProcesso,
-      [name]: name.includes('id') ? Number(value) : value,
+      [name]: novoValor,
     });
   };
 
@@ -54,6 +78,8 @@ export default function PrAdm() {
         alert('Processo atualizado com sucesso!');
         setProcessos(processos.map(p => p.idprocessos === editarProcesso.idprocessos ? editarProcesso : p));
         setEditarProcesso(null);
+        setAlteracoes([]);
+        setMostrarAlteracoes(false);
       } else {
         alert(`Erro: ${dados.error}`);
       }
@@ -76,7 +102,10 @@ export default function PrAdm() {
       if (resposta.ok) {
         alert('Processo deletado com sucesso!');
         setProcessos(processos.filter(p => p.idprocessos !== id));
-        if (editarProcesso?.idprocessos === id) setEditarProcesso(null);
+        if (editarProcesso?.idprocessos === id) {
+          setEditarProcesso(null);
+          setAlteracoes([]);
+        }
       } else {
         alert(`Erro: ${dados.error}`);
       }
@@ -86,12 +115,26 @@ export default function PrAdm() {
     }
   };
 
-  return (
-    <div>
-      <h2>Painel de Gerenciamento de Processos</h2>
-      <p>Abaixo estão listados todos os processos cadastrados no sistema. Você pode editar ou remover registros.</p>
+  const mapearDescricaoCampo = (campo: string): string => {
+    const mapa: Record<string, string> = {
+      numero_processo: "Número do Processo",
+      descricao: "Descrição",
+      status: "Status do Processo",
+      data_abertura: "Data de Abertura",
+      data_encerramento: "Data de Encerramento",
+      Clientes_idClientes: "ID do Cliente",
+      Advogados_idAdvogados: "ID do Advogado",
+      Areas_idareas: "ID da Área"
+    };
+    return mapa[campo] || campo.replace(/_/g, ' ');
+  };
 
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
+  return (
+    <div className="container-principal">
+      <h2 className="titulo-principal">Painel de Gerenciamento de Processos</h2>
+      <p className="subtitulo">Abaixo estão listados todos os processos cadastrados no sistema.</p>
+
+      {erro && <div className="mensagem mensagem-erro">{erro}</div>}
 
       <div className="tabela-container">
         <table className="tabela">
@@ -103,9 +146,9 @@ export default function PrAdm() {
               <th>Status</th>
               <th>Abertura</th>
               <th>Encerramento</th>
-              <th>ID Cliente</th>
-              <th>ID Advogado</th>
-              <th>ID Área</th>
+              <th>Cliente</th>
+              <th>Advogado</th>
+              <th>Área</th>
               <th>Ações</th>
             </tr>
           </thead>
@@ -122,8 +165,12 @@ export default function PrAdm() {
                 <td>{p.Advogados_idAdvogados}</td>
                 <td>{p.Areas_idareas}</td>
                 <td>
-                  <button className="botao-editar" onClick={() => setEditarProcesso(p)}>Editar</button>
-                  <button className="botao-deletar" onClick={() => handleDelete(p.idprocessos)}>Excluir</button>
+                  <button className="botao botao-editar" onClick={() => {
+                    setEditarProcesso(p);
+                    setAlteracoes([]);
+                    setMostrarAlteracoes(false);
+                  }}>Editar</button>
+                  <button className="botao botao-deletar" onClick={() => handleDelete(p.idprocessos)}>Excluir</button>
                 </td>
               </tr>
             ))}
@@ -132,73 +179,63 @@ export default function PrAdm() {
       </div>
 
       {editarProcesso && (
-        <div className="formulario-edicao">
-          <h3>Editar Informações do Processo</h3>
+        <div className="formulario-container">
+          <h3 className="formulario-titulo">Editar Processo #{editarProcesso.idprocessos}</h3>
           <form onSubmit={handleUpdate}>
-            <input
-              type="text"
-              name="numero_processo"
-              placeholder="Número do Processo"
-              value={editarProcesso.numero_processo}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="text"
-              name="descricao"
-              placeholder="Descrição"
-              value={editarProcesso.descricao}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="text"
-              name="status"
-              placeholder="Status"
-              value={editarProcesso.status}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="date"
-              name="data_abertura"
-              value={editarProcesso.data_abertura}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="date"
-              name="data_encerramento"
-              value={editarProcesso.data_encerramento || ''}
-              onChange={handleChange}
-            />
-            <input
-              type="number"
-              name="Clientes_idClientes"
-              placeholder="ID do Cliente"
-              value={editarProcesso.Clientes_idClientes}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="number"
-              name="Advogados_idAdvogados"
-              placeholder="ID do Advogado"
-              value={editarProcesso.Advogados_idAdvogados}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="number"
-              name="Areas_idareas"
-              placeholder="ID da Área"
-              value={editarProcesso.Areas_idareas}
-              onChange={handleChange}
-              required
-            />
-            <button type="submit">Salvar Alterações</button>
-            <button type="button" onClick={() => setEditarProcesso(null)}>Cancelar</button>
+            <input type="text" name="numero_processo" placeholder="Número" value={editarProcesso.numero_processo} onChange={handleChange} required />
+            <input type="text" name="descricao" placeholder="Descrição" value={editarProcesso.descricao} onChange={handleChange} required />
+            <input type="text" name="status" placeholder="Status" value={editarProcesso.status} onChange={handleChange} required />
+            <input type="date" name="data_abertura" value={editarProcesso.data_abertura} onChange={handleChange} required />
+            <input type="date" name="data_encerramento" value={editarProcesso.data_encerramento || ''} onChange={handleChange} />
+            <input type="number" name="Clientes_idClientes" placeholder="ID Cliente" value={editarProcesso.Clientes_idClientes} onChange={handleChange} required />
+            <input type="number" name="Advogados_idAdvogados" placeholder="ID Advogado" value={editarProcesso.Advogados_idAdvogados} onChange={handleChange} required />
+            <input type="number" name="Areas_idareas" placeholder="ID Área" value={editarProcesso.Areas_idareas} onChange={handleChange} required />
+
+            <div className="formulario-botoes">
+              <button type="button" className="botao botao-secundario" onClick={() => setMostrarAlteracoes(!mostrarAlteracoes)}>
+                {mostrarAlteracoes ? 'Ocultar Alterações' : 'Ver Alterações'}
+              </button>
+              <button type="button" className="botao botao-secundario" onClick={() => {
+                setEditarProcesso(null);
+                setAlteracoes([]);
+                setMostrarAlteracoes(false);
+              }}>
+                Cancelar
+              </button>
+              <button type="submit" className="botao botao-primario">Salvar Alterações</button>
+            </div>
           </form>
+
+          {mostrarAlteracoes && alteracoes.length > 0 && (
+            <div className="tabela-alteracoes-container">
+              <h4>Resumo das Alterações</h4>
+              <table className="tabela-alteracoes">
+                <thead>
+                  <tr>
+                    <th>Campo Alterado</th>
+                    <th>Valor Anterior</th>
+                    <th>Novo Valor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {alteracoes.map((alt, index) => (
+                    <tr key={index}>
+                      <td>
+                        <strong>{mapearDescricaoCampo(alt.campo)}</strong>
+                        <br /><small>{alt.campo.replace(/_/g, ' ')}</small>
+                      </td>
+                      <td style={{ color: 'var(--erro)', fontWeight: 'bold' }}>
+                        {alt.valorAnterior?.toString() || '---'}
+                      </td>
+                      <td style={{ color: 'var(--sucesso)', fontWeight: 'bold' }}>
+                        {alt.novoValor?.toString() || '---'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </div>

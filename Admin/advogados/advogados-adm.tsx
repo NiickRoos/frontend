@@ -10,10 +10,18 @@ interface Advogado {
   especialidade: string;
 }
 
+interface Alteracao {
+  campo: string;
+  valorAnterior: string;
+  novoValor: string;
+}
+
 export default function AdvogadosAdm() {
   const [advogados, setAdvogados] = useState<Advogado[]>([]);
   const [editarAdvogado, setEditarAdvogado] = useState<Advogado | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [alteracoes, setAlteracoes] = useState<Alteracao[]>([]);
+  const [mostrarAlteracoes, setMostrarAlteracoes] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:3000/advogados')
@@ -27,11 +35,24 @@ export default function AdvogadosAdm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!editarAdvogado) return;
+
     const { name, value } = e.target;
-    setEditarAdvogado({
-      ...editarAdvogado,
-      [name]: value,
-    });
+    const valorAnterior = (editarAdvogado as any)[name];
+
+    if (valorAnterior !== value) {
+      setAlteracoes(prev => {
+        const existe = prev.find(a => a.campo === name);
+        if (existe) {
+          return prev.map(a =>
+            a.campo === name ? { ...a, novoValor: value } : a
+          );
+        } else {
+          return [...prev, { campo: name, valorAnterior, novoValor: value }];
+        }
+      });
+    }
+
+    setEditarAdvogado({ ...editarAdvogado, [name]: value });
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -53,6 +74,8 @@ export default function AdvogadosAdm() {
           a.idAdvogados === editarAdvogado.idAdvogados ? editarAdvogado : a
         ));
         setEditarAdvogado(null);
+        setAlteracoes([]);
+        setMostrarAlteracoes(false);
       } else {
         alert(`Erro: ${dados.error}`);
       }
@@ -75,7 +98,10 @@ export default function AdvogadosAdm() {
       if (resposta.ok) {
         alert('Advogado deletado com sucesso!');
         setAdvogados(advogados.filter(a => a.idAdvogados !== id));
-        if (editarAdvogado?.idAdvogados === id) setEditarAdvogado(null);
+        if (editarAdvogado?.idAdvogados === id) {
+          setEditarAdvogado(null);
+          setAlteracoes([]);
+        }
       } else {
         alert(`Erro: ${dados.error}`);
       }
@@ -86,20 +112,20 @@ export default function AdvogadosAdm() {
   };
 
   return (
-    <div>
-      <h2>Painel de Gerenciamento de Advogados</h2>
-      <p>Abaixo estão listados todos os advogados cadastrados no sistema. Você pode editar ou remover registros.</p>
+    <div className="container-principal">
+      <h2 className="titulo-principal">Painel de Gerenciamento de Advogados</h2>
+      <p className="subtitulo">Abaixo estão listados todos os advogados cadastrados no sistema.</p>
 
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
+      {erro && <p className="mensagem mensagem-erro">{erro}</p>}
 
       <div className="tabela-container">
         <table className="tabela">
           <thead>
             <tr>
               <th>ID</th>
-              <th>Nome Completo</th>
-              <th>Registro OAB</th>
-              <th>Email de Contato</th>
+              <th>Nome</th>
+              <th>OAB</th>
+              <th>Email</th>
               <th>Telefone</th>
               <th>Especialidade</th>
               <th>Ações</th>
@@ -115,8 +141,12 @@ export default function AdvogadosAdm() {
                 <td>{a.telefone}</td>
                 <td>{a.especialidade}</td>
                 <td>
-                  <button className="botao-editar" onClick={() => setEditarAdvogado(a)}>Editar</button>
-                  <button className="botao-deletar" onClick={() => handleDelete(a.idAdvogados)}>Excluir</button>
+                  <button className="botao botao-editar" onClick={() => {
+                    setEditarAdvogado(a);
+                    setAlteracoes([]);
+                    setMostrarAlteracoes(false);
+                  }}>Editar</button>
+                  <button className="botao botao-deletar" onClick={() => handleDelete(a.idAdvogados)}>Excluir</button>
                 </td>
               </tr>
             ))}
@@ -125,8 +155,8 @@ export default function AdvogadosAdm() {
       </div>
 
       {editarAdvogado && (
-        <div className="formulario-edicao">
-          <h3>Editar Informações do Advogado</h3>
+        <div className="formulario-container">
+          <h3 className="formulario-titulo">Editar Advogado #{editarAdvogado.idAdvogados}</h3>
           <form onSubmit={handleUpdate}>
             <input
               type="text"
@@ -147,7 +177,7 @@ export default function AdvogadosAdm() {
             <input
               type="email"
               name="email"
-              placeholder="Email de contato"
+              placeholder="Email"
               value={editarAdvogado.email}
               onChange={handleChange}
               required
@@ -163,14 +193,56 @@ export default function AdvogadosAdm() {
             <input
               type="text"
               name="especialidade"
-              placeholder="Área de especialização"
+              placeholder="Especialidade"
               value={editarAdvogado.especialidade}
               onChange={handleChange}
               required
             />
-            <button type="submit">Salvar Alterações</button>
-            <button type="button" onClick={() => setEditarAdvogado(null)}>Cancelar</button>
+
+            <div className="formulario-botoes">
+              <button type="button"
+                className="botao botao-secundario"
+                onClick={() => setMostrarAlteracoes(!mostrarAlteracoes)}>
+                {mostrarAlteracoes ? 'Ocultar Alterações' : 'Ver Alterações'}
+              </button>
+              <button type="button"
+                className="botao botao-secundario"
+                onClick={() => {
+                  setEditarAdvogado(null);
+                  setAlteracoes([]);
+                  setMostrarAlteracoes(false);
+                }}>
+                Cancelar
+              </button>
+              <button type="submit" className="botao botao-primario">
+                Salvar Alterações
+              </button>
+            </div>
           </form>
+
+          {mostrarAlteracoes && alteracoes.length > 0 && (
+            <div className="tabela-alteracoes-container">
+              <h4>Resumo das Alterações</h4>
+              <table className="tabela-alteracoes">
+                <thead>
+                  <tr>
+                    <th>Campo</th>
+                    <th>Valor Anterior</th>
+                    <th>Novo Valor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {alteracoes.map((alt, index) => (
+                    <tr key={index}>
+                      <td>{alt.campo.replace(/_/g, ' ')}</td>
+                      <td>{alt.valorAnterior}</td>
+                      <td>{alt.novoValor}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </div>
