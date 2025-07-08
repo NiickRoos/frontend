@@ -2,6 +2,7 @@ import { Routes, Route, Link } from 'react-router-dom';
 import Processos from './Admin/processos/processos-adm';
 import Advogados from './Admin/advogados/advogados-adm';
 import Clientes from './Admin/clientes/clientes-adm';
+import RelatoriosAdm from './Admin/relatorios/relatorios-adm';
 import './app-adm.css';
 
 
@@ -19,6 +20,7 @@ export default function AppAdmin({ voltar }: AppAdminProps) {
         <Link to="/processos" className="menu-link">Processos</Link>
         <Link to="/advogados" className="menu-link">Advogados</Link>
         <Link to="/clientes" className="menu-link">Clientes</Link>
+        <Link to="/relatorios" className="menu-link">Relatórios</Link>
         <button className="voltar-button" onClick={voltar}>
           Voltar à Tela Inicial
         </button>
@@ -47,6 +49,7 @@ export default function AppAdmin({ voltar }: AppAdminProps) {
           <Route path="/processos" element={<Processos />} />
           <Route path="/clientes" element={<Clientes />} />
           <Route path="/advogados" element={<Advogados />} />
+          <Route path="/relatorios" element={<RelatoriosAdm />} />
           <Route path="*" element={<h1 className="not-found">Página não encontrada</h1>} />
         </Routes>
       </main>
