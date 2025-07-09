@@ -2,6 +2,7 @@ import { Routes, Route, Link } from 'react-router-dom';
 import Processos from './Clientes/processos/processos-clientes';
 import Advogados from './Clientes/advogados/advogados-clientes';
 import Clientes from './Clientes/clientes/clientes-clientes';
+import relatoriosclientes from './Clientes/relatorios/relatorios-clientes'
 import './app-cliente.css';
 
 
@@ -21,6 +22,7 @@ export default function AppCliente({ voltar }: AppClienteProps) {
         <Link to="/processos" className="menu-link">Processos</Link>
         <Link to="/advogados" className="menu-link">Advogados</Link>
         <Link to="/clientes" className="menu-link">Clientes</Link>
+        <Link to="/relatoriosclientes" className="menu-link">Relatórios</Link>
         <button className="voltar-button" onClick={voltar}>
           Voltar à Tela Inicial
         </button>
@@ -49,6 +51,7 @@ export default function AppCliente({ voltar }: AppClienteProps) {
           <Route path="/processos" element={<Processos />} />
           <Route path="/clientes" element={<Clientes />} />
           <Route path="/advogados" element={<Advogados />} />
+           <Route path="/relatoriosclientes" element={<Relatorios />} />
           <Route path="*" element={<h1 className="not-found">Página não encontrada</h1>} />
         </Routes>
       </main>

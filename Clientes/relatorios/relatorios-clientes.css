@@ -1,0 +1,224 @@
+/* RelatoriosAdm.css - Estilo para Relatórios Administrativos */
+
+/* === VARIÁVEIS === */
+:root {
+  --vermelho-escuro: #8B0000;
+  --vermelho-medio: #A52A2A;
+  --vermelho-claro: #D10000;
+  
+  --gradiente-vermelho: linear-gradient(90deg, #8B0000, #D10000);
+  --gradiente-titulo: linear-gradient(to right, #8B0000, #D4AF37);
+  --gradiente-tabela: linear-gradient(135deg, #8B0000, #A52A2A);
+
+  --cinza-escuro: #333333;
+  --cinza-medio: #666666;
+  --cinza-claro: #F5F5F5;
+  --cinza-fundo: #fff9f9;
+  --branco: #FFFFFF;
+
+  --sucesso: #28A745;
+  --erro: #DC3545;
+  --alerta: #FFC107;
+  --info: #17A2B8;
+
+  --espaco-pequeno: 0.5rem;
+  --espaco-medio: 1rem;
+  --espaco-grande: 1.5rem;
+  --espaco-muito-grande: 2rem;
+
+  --borda-fina: 1px solid #E0E0E0;
+  --borda-radius: 10px;
+
+  --sombra-suave: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --sombra-media: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* === CONTAINER PRINCIPAL === */
+.relatorios-adm-container {
+  font-family: Arial, Helvetica, sans-serif;
+  padding: var(--espaco-muito-grande);
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: var(--cinza-fundo);
+  min-height: 100vh;
+}
+
+/* === CABEÇALHO === */
+.header-container {
+  margin-bottom: var(--espaco-muito-grande);
+  text-align: center;
+}
+
+.relatorios-title {
+  font-size: 2.4rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  background: var(--gradiente-titulo);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  margin-bottom: var(--espaco-pequeno);
+}
+
+.title-icon {
+  margin-right: 10px;
+  font-size: 1.8rem;
+  vertical-align: middle;
+}
+
+.divider {
+  height: 3px;
+  width: 120px;
+  background: var(--gradiente-titulo);
+  margin: var(--espaco-pequeno) auto var(--espaco-grande);
+  border-radius: 3px;
+}
+
+/* === MENSAGEM DE ERRO === */
+.error-message {
+  color: #721c24;
+  background-color: #f8d7da;
+  padding: var(--espaco-medio);
+  border-radius: var(--borda-radius);
+  margin-bottom: var(--espaco-grande);
+  text-align: center;
+  border-left: 5px solid var(--vermelho-escuro);
+  font-size: 1rem;
+  box-shadow: var(--sombra-suave);
+}
+
+/* === CONTAINER DA TABELA === */
+.table-container {
+  overflow-x: auto;
+  background-color: var(--branco);
+  padding: var(--espaco-medio);
+  border-radius: var(--borda-radius);
+  box-shadow: var(--sombra-media);
+  margin-bottom: var(--espaco-muito-grande);
+}
+
+/* === TABELA PADRÃO === */
+.relatorios-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--branco);
+  border-radius: var(--borda-radius);
+  overflow: hidden;
+}
+
+.relatorios-table th {
+  background: var(--gradiente-tabela);
+  color: var(--branco);
+  padding: var(--espaco-medio) var(--espaco-grande);
+  text-align: left;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.relatorios-table td {
+  padding: var(--espaco-medio) var(--espaco-grande);
+  border-bottom: var(--borda-fina);
+  color: var(--cinza-escuro);
+  font-size: 0.95rem;
+}
+
+.relatorios-table tr:last-child td {
+  border-bottom: none;
+}
+
+.relatorios-table tr:hover {
+  background-color: #fff0f0;
+  transition: background 0.2s ease-in-out;
+}
+
+/* === BORDAS SUAVES NOS CANTOS === */
+.relatorios-table th:first-child {
+  border-top-left-radius: var(--borda-radius);
+}
+
+.relatorios-table th:last-child {
+  border-top-right-radius: var(--borda-radius);
+}
+
+/* === STATUS BADGES === */
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+  min-width: 80px;
+  text-align: center;
+  box-shadow: var(--sombra-suave);
+}
+
+.status-badge.ativo {
+  background-color: #e6f7ee;
+  color: #006400;
+  border: 1px solid #006400;
+}
+
+.status-badge.encerrado {
+  background-color: #ffebee;
+  color: var(--vermelho-escuro);
+  border: 1px solid var(--vermelho-escuro);
+}
+
+.status-badge.andamento {
+  background-color: #fff8e1;
+  color: #FF8C00;
+  border: 1px solid #FF8C00;
+}
+
+/* === RESPONSIVIDADE === */
+@media (max-width: 768px) {
+  .relatorios-title {
+    font-size: 1.8rem;
+  }
+
+  .relatorios-table {
+    display: block;
+    width: 100%;
+  }
+
+  .relatorios-table thead {
+    display: none;
+  }
+
+  .relatorios-table tr {
+    display: block;
+    margin-bottom: var(--espaco-grande);
+    background-color: var(--branco);
+    border-radius: var(--borda-radius);
+    box-shadow: var(--sombra-suave);
+    padding: var(--espaco-medio);
+  }
+
+  .relatorios-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: right;
+    padding: var(--espaco-pequeno) 0;
+    position: relative;
+    border-bottom: var(--borda-fina);
+  }
+
+  .relatorios-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: var(--espaco-pequeno);
+    font-weight: bold;
+    text-align: left;
+    color: var(--vermelho-escuro);
+  }
+
+  .relatorios-table td:last-child {
+    border-bottom: none;
+  }
+}
