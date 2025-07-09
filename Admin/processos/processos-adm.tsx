@@ -183,142 +183,134 @@ export default function PrAdm() {
 
       {editarProcesso && (
         <div className="formulario-container">
-          <h3 className="formulario-titulo">Editar Processo #{editarProcesso.idprocessos}</h3>
-          <form onSubmit={handleUpdate} className="formulario">
+           <form onSubmit={handleUpdate} className="formulario-vertical">
+  <label className="formulario-label">
+    Número do Processo:
+    <input
+      type="text"
+      name="numero_processo"
+      placeholder="Número do Processo"
+      value={editarProcesso.numero_processo}
+      onChange={handleChange}
+      required
+      className="formulario-input"
+    />
+  </label>
 
-            <div className="formulario-linha">
-              <label>
-                Número do Processo:
-                <input
-                  type="text"
-                  name="numero_processo"
-                  placeholder="Número do Processo"
-                  value={editarProcesso.numero_processo}
-                  onChange={handleChange}
-                  required
-                  className="formulario-input"
-                />
-              </label>
+  <label className="formulario-label">
+    Descrição:
+    <input
+      type="text"
+      name="descricao"
+      placeholder="Descrição"
+      value={editarProcesso.descricao}
+      onChange={handleChange}
+      required
+      className="formulario-input"
+    />
+  </label>
 
-              <label>
-                Descrição:
-                <input
-                  type="text"
-                  name="descricao"
-                  placeholder="Descrição"
-                  value={editarProcesso.descricao}
-                  onChange={handleChange}
-                  required
-                  className="formulario-input"
-                />
-              </label>
-            </div>
+  <label className="formulario-label">
+    Status:
+    <select
+      name="status"
+      value={editarProcesso.status}
+      onChange={handleChange}
+      required
+      className="formulario-input"
+    >
+      <option value="">Selecione o status</option>
+      <option value="Em andamento">Em andamento</option>
+      <option value="Finalizado">Finalizado</option>
+      <option value="Arquivado">Arquivado</option>
+    </select>
+  </label>
 
-            <div className="formulario-linha">
-              <label>
-                Status:
-                <select
-                  name="status"
-                  value={editarProcesso.status}
-                  onChange={handleChange}
-                  required
-                  className="formulario-input"
-                >
-                  <option value="">Selecione o status</option>
-                  <option value="Em andamento">Em andamento</option>
-                  <option value="Finalizado">Finalizado</option>
-                  <option value="Arquivado">Arquivado</option>
-                </select>
-              </label>
+  <label className="formulario-label">
+    Data de Abertura:
+    <input
+      type="date"
+      name="data_abertura"
+      value={editarProcesso.data_abertura}
+      onChange={handleChange}
+      required
+      className="formulario-input"
+    />
+  </label>
 
-              <label>
-                Data de Abertura:
-                <input
-                  type="date"
-                  name="data_abertura"
-                  value={editarProcesso.data_abertura}
-                  onChange={handleChange}
-                  required
-                  className="formulario-input"
-                />
-              </label>
+  <label className="formulario-label">
+    Data de Encerramento:
+    <input
+      type="date"
+      name="data_encerramento"
+      value={editarProcesso.data_encerramento || ''}
+      onChange={handleChange}
+      className="formulario-input"
+    />
+  </label>
 
-              <label>
-                Data de Encerramento:
-                <input
-                  type="date"
-                  name="data_encerramento"
-                  value={editarProcesso.data_encerramento || ''}
-                  onChange={handleChange}
-                  className="formulario-input"
-                />
-              </label>
-            </div>
+  <label className="formulario-label">
+    ID do Cliente:
+    <input
+      type="number"
+      name="Clientes_idClientes"
+      placeholder="ID do Cliente"
+      value={editarProcesso.Clientes_idClientes}
+      onChange={handleChange}
+      required
+      className="formulario-input"
+    />
+  </label>
 
-            <div className="formulario-linha">
-              <label>
-                ID do Cliente:
-                <input
-                  type="number"
-                  name="Clientes_idClientes"
-                  placeholder="ID do Cliente"
-                  value={editarProcesso.Clientes_idClientes}
-                  onChange={handleChange}
-                  required
-                  className="formulario-input"
-                />
-              </label>
+  <label className="formulario-label">
+    ID do Advogado:
+    <input
+      type="number"
+      name="Advogados_idAdvogados"
+      placeholder="ID do Advogado"
+      value={editarProcesso.Advogados_idAdvogados}
+      onChange={handleChange}
+      required
+      className="formulario-input"
+    />
+  </label>
 
-              <label>
-                ID do Advogado:
-                <input
-                  type="number"
-                  name="Advogados_idAdvogados"
-                  placeholder="ID do Advogado"
-                  value={editarProcesso.Advogados_idAdvogados}
-                  onChange={handleChange}
-                  required
-                  className="formulario-input"
-                />
-              </label>
+  <label className="formulario-label">
+    Área:
+    <select
+      name="area"
+      value={editarProcesso.area}
+      onChange={handleChange}
+      required
+      className="formulario-input"
+    >
+      <option value="">Selecione a área</option>
+      <option value="Direito Civil">Direito Civil</option>
+      <option value="Direito Penal">Direito Penal</option>
+      <option value="Direito Trabalhista">Direito Trabalhista</option>
+      <option value="Direito Empresarial">Direito Empresarial</option>
+    </select>
+  </label>
 
-              <label>
-                Área:
-                <select
-                  name="area"
-                  value={editarProcesso.area}
-                  onChange={handleChange}
-                  required
-                  className="formulario-input"
-                >
-                  <option value="">Selecione a área</option>
-                  <option value="Direito Civil">Direito Civil</option>
-                  <option value="Direito Penal">Direito Penal</option>
-                  <option value="Direito Trabalhista">Direito Trabalhista</option>
-                  <option value="Direito Empresarial">Direito Empresarial</option>
-                </select>
-              </label>
-            </div>
-
-            <div className="formulario-botoes">
-              <button
-                type="button"
-                className="botao botao-secundario"
-                onClick={() => {
-                  setEditarProcesso(null);
-                  setAlteracoes([]);
-                  setMostrarAlteracoes(false);
-                }}
-              >
-                Cancelar
-              </button>
-              <button type="submit" className="botao botao-primario">
-                Salvar Alterações
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-    </div>
+  <div className="formulario-botoes">
+    <button
+      type="button"
+      className="botao botao-secundario"
+      onClick={() => {
+        setEditarProcesso(null);
+        setAlteracoes([]);
+        setMostrarAlteracoes(false);
+      }}
+    >
+      Cancelar
+    </button>
+    <button type="submit" className="botao botao-primario">
+      Salvar Alterações
+    </button>
+  </div>
+</form>
+</div>
+)}
+</div> 
   );
-}
+} 
