@@ -3,31 +3,33 @@ import { useState } from 'react';
 interface Processo {
   numero_processo: string;
   descricao: string;
-  status: string;
+  status: 'Em andamento' | 'Finalizado' | 'Arquivado';
   data_abertura: string;
   data_encerramento?: string;
   Clientes_idClientes: number;
   Advogados_idAdvogados: number;
-  Areas_idareas: number;
+  area: 'Direito Civil' | 'Direito Penal' | 'Direito Trabalhista' | 'Direito Empresarial';
 }
 
 export default function PrCadastrar() {
   const [processo, setProcesso] = useState<Processo>({
     numero_processo: '',
     descricao: '',
-    status: '',
+    status: 'Em andamento',
     data_abertura: '',
     data_encerramento: '',
     Clientes_idClientes: 0,
     Advogados_idAdvogados: 0,
-    Areas_idareas: 0,
+    area: 'Direito Civil',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setProcesso({
       ...processo,
-      [name]: name.includes('id') ? Number(value) : value
+      [name]: name.includes('id') ? Number(value) : value,
     });
   };
 
@@ -38,23 +40,22 @@ export default function PrCadastrar() {
       const resposta = await fetch('http://localhost:3000/processos/cadastrar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(processo)
+        body: JSON.stringify(processo),
       });
 
       const dados = await resposta.json();
 
       if (resposta.ok) {
         alert('Processo cadastrado com sucesso!');
-        // Limpa o formulário
         setProcesso({
           numero_processo: '',
           descricao: '',
-          status: '',
+          status: 'Em andamento',
           data_abertura: '',
           data_encerramento: '',
           Clientes_idClientes: 0,
           Advogados_idAdvogados: 0,
-          Areas_idareas: 0,
+          area: 'Direito Civil',
         });
       } else {
         alert(`Erro: ${dados.error}`);
@@ -77,6 +78,7 @@ export default function PrCadastrar() {
           onChange={handleChange}
           required
         />
+
         <input
           type="text"
           name="descricao"
@@ -85,14 +87,18 @@ export default function PrCadastrar() {
           onChange={handleChange}
           required
         />
-        <input
-          type="text"
+
+        <select
           name="status"
-          placeholder="Status"
           value={processo.status}
           onChange={handleChange}
           required
-        />
+        >
+          <option value="Em andamento">Em andamento</option>
+          <option value="Finalizado">Finalizado</option>
+          <option value="Arquivado">Arquivado</option>
+        </select>
+
         <input
           type="date"
           name="data_abertura"
@@ -100,12 +106,14 @@ export default function PrCadastrar() {
           onChange={handleChange}
           required
         />
+
         <input
           type="date"
           name="data_encerramento"
           value={processo.data_encerramento}
           onChange={handleChange}
         />
+
         <input
           type="number"
           name="Clientes_idClientes"
@@ -114,6 +122,7 @@ export default function PrCadastrar() {
           onChange={handleChange}
           required
         />
+
         <input
           type="number"
           name="Advogados_idAdvogados"
@@ -122,14 +131,14 @@ export default function PrCadastrar() {
           onChange={handleChange}
           required
         />
-        <input
-          type="number"
-          name="Areas_idareas"
-          placeholder="ID da Área"
-          value={processo.Areas_idareas}
-          onChange={handleChange}
-          required
-        />
+
+        <select name="area" value={processo.area} onChange={handleChange} required>
+          <option value="Direito Civil">Direito Civil</option>
+          <option value="Direito Penal">Direito Penal</option>
+          <option value="Direito Trabalhista">Direito Trabalhista</option>
+          <option value="Direito Empresarial">Direito Empresarial</option>
+        </select>
+
         <button type="submit">Cadastrar</button>
       </form>
     </div>

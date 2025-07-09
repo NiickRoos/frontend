@@ -12,8 +12,8 @@ interface Advogado {
 
 interface Alteracao {
   campo: string;
-  valorAnterior: string;
-  novoValor: string;
+  valorAnterior: any;
+  novoValor: any;
 }
 
 export default function AdvogadosAdm() {
@@ -35,14 +35,13 @@ export default function AdvogadosAdm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!editarAdvogado) return;
-
     const { name, value } = e.target;
     const valorAnterior = (editarAdvogado as any)[name];
 
     if (valorAnterior !== value) {
       setAlteracoes(prev => {
-        const existe = prev.find(a => a.campo === name);
-        if (existe) {
+        const existente = prev.find(a => a.campo === name);
+        if (existente) {
           return prev.map(a =>
             a.campo === name ? { ...a, novoValor: value } : a
           );
@@ -101,6 +100,7 @@ export default function AdvogadosAdm() {
         if (editarAdvogado?.idAdvogados === id) {
           setEditarAdvogado(null);
           setAlteracoes([]);
+          setMostrarAlteracoes(false);
         }
       } else {
         alert(`Erro: ${dados.error}`);
@@ -109,6 +109,17 @@ export default function AdvogadosAdm() {
       console.error(error);
       alert('Erro ao deletar advogado');
     }
+  };
+
+  const mapearDescricaoCampo = (campo: string): string => {
+    const mapa: Record<string, string> = {
+      nome: 'Nome',
+      oab: 'Número da OAB',
+      email: 'Email',
+      telefone: 'Telefone',
+      especialidade: 'Especialidade',
+    };
+    return mapa[campo] || campo.replace(/_/g, ' ');
   };
 
   return (
@@ -141,12 +152,22 @@ export default function AdvogadosAdm() {
                 <td>{a.telefone}</td>
                 <td>{a.especialidade}</td>
                 <td>
-                  <button className="botao botao-editar" onClick={() => {
-                    setEditarAdvogado(a);
-                    setAlteracoes([]);
-                    setMostrarAlteracoes(false);
-                  }}>Editar</button>
-                  <button className="botao botao-deletar" onClick={() => handleDelete(a.idAdvogados)}>Excluir</button>
+                  <button
+                    className="botao botao-editar"
+                    onClick={() => {
+                      setEditarAdvogado(a);
+                      setAlteracoes([]);
+                      setMostrarAlteracoes(false);
+                    }}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    className="botao botao-deletar"
+                    onClick={() => handleDelete(a.idAdvogados)}
+                  >
+                    Excluir
+                  </button>
                 </td>
               </tr>
             ))}
@@ -157,61 +178,89 @@ export default function AdvogadosAdm() {
       {editarAdvogado && (
         <div className="formulario-container">
           <h3 className="formulario-titulo">Editar Advogado #{editarAdvogado.idAdvogados}</h3>
-          <form onSubmit={handleUpdate}>
-            <input
-              type="text"
-              name="nome"
-              placeholder="Nome completo"
-              value={editarAdvogado.nome}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="text"
-              name="oab"
-              placeholder="Número da OAB"
-              value={editarAdvogado.oab}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={editarAdvogado.email}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="text"
-              name="telefone"
-              placeholder="Telefone"
-              value={editarAdvogado.telefone}
-              onChange={handleChange}
-              required
-            />
-            <input
-              type="text"
-              name="especialidade"
-              placeholder="Especialidade"
-              value={editarAdvogado.especialidade}
-              onChange={handleChange}
-              required
-            />
+          <form onSubmit={handleUpdate} className="formulario">
+
+            <div className="formulario-linha">
+              <label>
+                Nome:
+                <input
+                  type="text"
+                  name="nome"
+                  placeholder="Nome completo"
+                  value={editarAdvogado.nome}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                />
+              </label>
+
+              <label>
+                Número da OAB:
+                <input
+                  type="text"
+                  name="oab"
+                  placeholder="Número da OAB"
+                  value={editarAdvogado.oab}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                />
+              </label>
+            </div>
+
+            <div className="formulario-linha">
+              <label>
+                Email:
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={editarAdvogado.email}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                />
+              </label>
+
+              <label>
+                Telefone:
+                <input
+                  type="text"
+                  name="telefone"
+                  placeholder="Telefone"
+                  value={editarAdvogado.telefone}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                />
+              </label>
+            </div>
+
+            <div className="formulario-linha">
+              <label>
+                Especialidade:
+                <input
+                  type="text"
+                  name="especialidade"
+                  placeholder="Especialidade"
+                  value={editarAdvogado.especialidade}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                />
+              </label>
+            </div>
 
             <div className="formulario-botoes">
-              <button type="button"
-                className="botao botao-secundario"
-                onClick={() => setMostrarAlteracoes(!mostrarAlteracoes)}>
-                {mostrarAlteracoes ? 'Ocultar Alterações' : 'Ver Alterações'}
-              </button>
-              <button type="button"
+              <button
+                type="button"
                 className="botao botao-secundario"
                 onClick={() => {
                   setEditarAdvogado(null);
                   setAlteracoes([]);
                   setMostrarAlteracoes(false);
-                }}>
+                }}
+              >
                 Cancelar
               </button>
               <button type="submit" className="botao botao-primario">
@@ -220,9 +269,9 @@ export default function AdvogadosAdm() {
             </div>
           </form>
 
-          {mostrarAlteracoes && alteracoes.length > 0 && (
-            <div className="tabela-alteracoes-container">
-              <h4>Resumo das Alterações</h4>
+          {alteracoes.length > 0 && (
+            <div className="alteracoes-container">
+              <h4>Alterações realizadas:</h4>
               <table className="tabela-alteracoes">
                 <thead>
                   <tr>
@@ -232,15 +281,21 @@ export default function AdvogadosAdm() {
                   </tr>
                 </thead>
                 <tbody>
-                  {alteracoes.map((alt, index) => (
-                    <tr key={index}>
-                      <td>{alt.campo.replace(/_/g, ' ')}</td>
-                      <td>{alt.valorAnterior}</td>
-                      <td>{alt.novoValor}</td>
+                  {alteracoes.map(({ campo, valorAnterior, novoValor }) => (
+                    <tr key={campo}>
+                      <td>{mapearDescricaoCampo(campo)}</td>
+                      <td>{valorAnterior}</td>
+                      <td>{novoValor}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              <button
+                className="botao botao-secundario"
+                onClick={() => setMostrarAlteracoes(!mostrarAlteracoes)}
+              >
+                {mostrarAlteracoes ? 'Esconder' : 'Mostrar'} Alterações
+              </button>
             </div>
           )}
         </div>

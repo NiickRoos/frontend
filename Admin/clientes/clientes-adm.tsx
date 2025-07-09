@@ -14,8 +14,8 @@ interface Cliente {
 
 interface Alteracao {
   campo: string;
-  valorAnterior: string;
-  novoValor: string;
+  valorAnterior: any;
+  novoValor: any;
 }
 
 export default function ClientesAdm() {
@@ -37,14 +37,13 @@ export default function ClientesAdm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (!editarCliente) return;
-
     const { name, value } = e.target;
     const valorAnterior = (editarCliente as any)[name];
 
     if (valorAnterior !== value) {
       setAlteracoes(prev => {
-        const existe = prev.find(a => a.campo === name);
-        if (existe) {
+        const existente = prev.find(a => a.campo === name);
+        if (existente) {
           return prev.map(a =>
             a.campo === name ? { ...a, novoValor: value } : a
           );
@@ -98,6 +97,7 @@ export default function ClientesAdm() {
         if (editarCliente?.idClientes === id) {
           setEditarCliente(null);
           setAlteracoes([]);
+          setMostrarAlteracoes(false);
         }
       } else {
         alert(`Erro: ${dados.error}`);
@@ -108,12 +108,25 @@ export default function ClientesAdm() {
     }
   };
 
+  const mapearDescricaoCampo = (campo: string): string => {
+    const mapa: Record<string, string> = {
+      nome: 'Nome',
+      email: 'Email',
+      telefone: 'Telefone',
+      documentos: 'Documentos',
+      tipo_de_documento: 'Tipo de Documento',
+      endereco: 'Endereço',
+      estado: 'Estado',
+    };
+    return mapa[campo] || campo.replace(/_/g, ' ');
+  };
+
   return (
     <div className="container-principal">
       <h2 className="titulo-principal">Painel de Gerenciamento de Clientes</h2>
       <p className="subtitulo">Abaixo estão listados todos os clientes cadastrados no sistema.</p>
 
-      {erro && <p className="mensagem mensagem-erro">{erro}</p>}
+      {erro && <div className="mensagem mensagem-erro">{erro}</div>}
 
       <div className="tabela-container">
         <table className="tabela">
@@ -142,12 +155,22 @@ export default function ClientesAdm() {
                 <td>{c.endereco}</td>
                 <td>{c.estado}</td>
                 <td>
-                  <button className="botao botao-editar" onClick={() => {
-                    setEditarCliente(c);
-                    setAlteracoes([]);
-                    setMostrarAlteracoes(false);
-                  }}>Editar</button>
-                  <button className="botao botao-deletar" onClick={() => handleDelete(c.idClientes)}>Excluir</button>
+                  <button
+                    className="botao botao-editar"
+                    onClick={() => {
+                      setEditarCliente(c);
+                      setAlteracoes([]);
+                      setMostrarAlteracoes(false);
+                    }}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    className="botao botao-deletar"
+                    onClick={() => handleDelete(c.idClientes)}
+                  >
+                    Excluir
+                  </button>
                 </td>
               </tr>
             ))}
@@ -158,36 +181,129 @@ export default function ClientesAdm() {
       {editarCliente && (
         <div className="formulario-container">
           <h3 className="formulario-titulo">Editar Cliente #{editarCliente.idClientes}</h3>
-          <form onSubmit={handleUpdate}>
-            <input type="text" name="nome" placeholder="Nome completo" value={editarCliente.nome} onChange={handleChange} required />
-            <input type="email" name="email" placeholder="Email" value={editarCliente.email} onChange={handleChange} required />
-            <input type="text" name="telefone" placeholder="Telefone" value={editarCliente.telefone} onChange={handleChange} required />
-            <input type="text" name="documentos" placeholder="Documentos" value={editarCliente.documentos} onChange={handleChange} required />
-            <select name="tipo_de_documento" value={editarCliente.tipo_de_documento} onChange={handleChange} required>
-              <option value="CPF">CPF</option>
-              <option value="CNPJ">CNPJ</option>
-            </select>
-            <input type="text" name="endereco" placeholder="Endereço" value={editarCliente.endereco} onChange={handleChange} required />
-            <input type="text" name="estado" placeholder="Estado" value={editarCliente.estado} onChange={handleChange} required />
+          <form onSubmit={handleUpdate} className="formulario">
+
+            <div className="formulario-linha">
+              <label>
+                Nome:
+                <input
+                  type="text"
+                  name="nome"
+                  placeholder="Nome completo"
+                  value={editarCliente.nome}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                />
+              </label>
+
+              <label>
+                Email:
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Email"
+                  value={editarCliente.email}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                />
+              </label>
+            </div>
+
+            <div className="formulario-linha">
+              <label>
+                Telefone:
+                <input
+                  type="text"
+                  name="telefone"
+                  placeholder="Telefone"
+                  value={editarCliente.telefone}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                />
+              </label>
+
+              <label>
+                Documentos:
+                <input
+                  type="text"
+                  name="documentos"
+                  placeholder="Documentos"
+                  value={editarCliente.documentos}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                />
+              </label>
+            </div>
+
+            <div className="formulario-linha">
+              <label>
+                Tipo de Documento:
+                <select
+                  name="tipo_de_documento"
+                  value={editarCliente.tipo_de_documento}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                >
+                  <option value="CPF">CPF</option>
+                  <option value="CNPJ">CNPJ</option>
+                </select>
+              </label>
+
+              <label>
+                Endereço:
+                <input
+                  type="text"
+                  name="endereco"
+                  placeholder="Endereço"
+                  value={editarCliente.endereco}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                />
+              </label>
+            </div>
+
+            <div className="formulario-linha">
+              <label>
+                Estado:
+                <input
+                  type="text"
+                  name="estado"
+                  placeholder="Estado"
+                  value={editarCliente.estado}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                />
+              </label>
+            </div>
 
             <div className="formulario-botoes">
-              <button type="button" className="botao botao-secundario" onClick={() => setMostrarAlteracoes(!mostrarAlteracoes)}>
-                {mostrarAlteracoes ? 'Ocultar Alterações' : 'Ver Alterações'}
-              </button>
-              <button type="button" className="botao botao-secundario" onClick={() => {
-                setEditarCliente(null);
-                setAlteracoes([]);
-                setMostrarAlteracoes(false);
-              }}>
+              <button
+                type="button"
+                className="botao botao-secundario"
+                onClick={() => {
+                  setEditarCliente(null);
+                  setAlteracoes([]);
+                  setMostrarAlteracoes(false);
+                }}
+              >
                 Cancelar
               </button>
-              <button type="submit" className="botao botao-primario">Salvar Alterações</button>
+              <button type="submit" className="botao botao-primario">
+                Salvar Alterações
+              </button>
             </div>
           </form>
 
-          {mostrarAlteracoes && alteracoes.length > 0 && (
-            <div className="tabela-alteracoes-container">
-              <h4>Resumo das Alterações</h4>
+          {alteracoes.length > 0 && (
+            <div className="alteracoes-container">
+              <h4>Alterações realizadas:</h4>
               <table className="tabela-alteracoes">
                 <thead>
                   <tr>
@@ -197,15 +313,21 @@ export default function ClientesAdm() {
                   </tr>
                 </thead>
                 <tbody>
-                  {alteracoes.map((alt, index) => (
-                    <tr key={index}>
-                      <td>{alt.campo.replace(/_/g, ' ')}</td>
-                      <td>{alt.valorAnterior}</td>
-                      <td>{alt.novoValor}</td>
+                  {alteracoes.map(({ campo, valorAnterior, novoValor }) => (
+                    <tr key={campo}>
+                      <td>{mapearDescricaoCampo(campo)}</td>
+                      <td>{valorAnterior}</td>
+                      <td>{novoValor}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              <button
+                className="botao botao-secundario"
+                onClick={() => setMostrarAlteracoes(!mostrarAlteracoes)}
+              >
+                {mostrarAlteracoes ? 'Esconder' : 'Mostrar'} Alterações
+              </button>
             </div>
           )}
         </div>

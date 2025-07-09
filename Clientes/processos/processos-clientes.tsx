@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PrCadastrar from './pr-cadastar';
 import PrListar from './pr-listar';
-
+import '../Padrao.css';
 export default function Processos() {
   const [modo, setModo] = useState<'listar' | 'cadastrar'>('listar');
 

@@ -14,10 +14,12 @@ export default function AdCadastrar() {
     oab: '',
     email: '',
     telefone: '',
-    especialidade: ''
+    especialidade: 'Direito Civil', // valor inicial default
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setAdvogado({ ...advogado, [name]: value });
   };
@@ -29,7 +31,7 @@ export default function AdCadastrar() {
       const resposta = await fetch('http://localhost:3000/advogados/cadastrar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(advogado)
+        body: JSON.stringify(advogado),
       });
 
       const dados = await resposta.json();
@@ -41,7 +43,7 @@ export default function AdCadastrar() {
           oab: '',
           email: '',
           telefone: '',
-          especialidade: ''
+          especialidade: 'Direito Civil',
         });
       } else {
         alert(`Erro: ${dados.error}`);
@@ -88,14 +90,17 @@ export default function AdCadastrar() {
           onChange={handleChange}
           required
         />
-        <input
-          type="text"
+        <select
           name="especialidade"
-          placeholder="Especialidade"
           value={advogado.especialidade}
           onChange={handleChange}
           required
-        />
+        >
+          <option value="Direito Civil">Direito Civil</option>
+          <option value="Direito Penal">Direito Penal</option>
+          <option value="Direito Trabalhista">Direito Trabalhista</option>
+          <option value="Direito Empresarial">Direito Empresarial</option>
+        </select>
         <button type="submit">Cadastrar</button>
       </form>
     </div>

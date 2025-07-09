@@ -5,12 +5,12 @@ interface Processo {
   idprocessos: number;
   numero_processo: string;
   descricao: string;
-  status: string;
+  status: 'Em andamento' | 'Finalizado' | 'Arquivado';
   data_abertura: string;
   data_encerramento?: string | null;
   Clientes_idClientes: number;
   Advogados_idAdvogados: number;
-  Areas_idareas: number;
+  area: 'Direito Civil' | 'Direito Penal' | 'Direito Trabalhista' | 'Direito Empresarial';
 }
 
 interface Alteracao {
@@ -40,8 +40,8 @@ export default function PrAdm() {
     if (!editarProcesso) return;
     const { name, value } = e.target;
     const novoValor = name.includes('id') ? Number(value) : value;
-
     const valorAnterior = (editarProcesso as any)[name];
+
     if (valorAnterior !== novoValor) {
       setAlteracoes(prev => {
         const existente = prev.find(a => a.campo === name);
@@ -65,18 +65,24 @@ export default function PrAdm() {
     e.preventDefault();
     if (!editarProcesso) return;
 
+    const processoParaEnvio = { ...editarProcesso };
+
+    if (processoParaEnvio.data_encerramento === '') {
+      processoParaEnvio.data_encerramento = null;
+    }
+
     try {
-      const resposta = await fetch(`http://localhost:3000/processos/${editarProcesso.idprocessos}`, {
+      const resposta = await fetch(`http://localhost:3000/processos/${processoParaEnvio.idprocessos}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editarProcesso),
+        body: JSON.stringify(processoParaEnvio),
       });
 
       const dados = await resposta.json();
 
       if (resposta.ok) {
         alert('Processo atualizado com sucesso!');
-        setProcessos(processos.map(p => p.idprocessos === editarProcesso.idprocessos ? editarProcesso : p));
+        setProcessos(processos.map(p => p.idprocessos === processoParaEnvio.idprocessos ? processoParaEnvio : p));
         setEditarProcesso(null);
         setAlteracoes([]);
         setMostrarAlteracoes(false);
@@ -115,20 +121,6 @@ export default function PrAdm() {
     }
   };
 
-  const mapearDescricaoCampo = (campo: string): string => {
-    const mapa: Record<string, string> = {
-      numero_processo: "Número do Processo",
-      descricao: "Descrição",
-      status: "Status do Processo",
-      data_abertura: "Data de Abertura",
-      data_encerramento: "Data de Encerramento",
-      Clientes_idClientes: "ID do Cliente",
-      Advogados_idAdvogados: "ID do Advogado",
-      Areas_idareas: "ID da Área"
-    };
-    return mapa[campo] || campo.replace(/_/g, ' ');
-  };
-
   return (
     <div className="container-principal">
       <h2 className="titulo-principal">Painel de Gerenciamento de Processos</h2>
@@ -163,14 +155,25 @@ export default function PrAdm() {
                 <td>{p.data_encerramento || '---'}</td>
                 <td>{p.Clientes_idClientes}</td>
                 <td>{p.Advogados_idAdvogados}</td>
-                <td>{p.Areas_idareas}</td>
+                <td>{p.area}</td>
                 <td>
-                  <button className="botao botao-editar" onClick={() => {
-                    setEditarProcesso(p);
-                    setAlteracoes([]);
-                    setMostrarAlteracoes(false);
-                  }}>Editar</button>
-                  <button className="botao botao-deletar" onClick={() => handleDelete(p.idprocessos)}>Excluir</button>
+                  <button
+                    className="botao botao-editar"
+                    onClick={() => {
+                      setEditarProcesso({
+                        ...p,
+                        data_abertura: p.data_abertura?.slice(0, 10),
+                        data_encerramento: p.data_encerramento?.slice(0, 10) || ''
+                      });
+                      setAlteracoes([]);
+                      setMostrarAlteracoes(false);
+                    }}
+                  >
+                    Editar
+                  </button>
+                  <button className="botao botao-deletar" onClick={() => handleDelete(p.idprocessos)}>
+                    Excluir
+                  </button>
                 </td>
               </tr>
             ))}
@@ -181,61 +184,139 @@ export default function PrAdm() {
       {editarProcesso && (
         <div className="formulario-container">
           <h3 className="formulario-titulo">Editar Processo #{editarProcesso.idprocessos}</h3>
-          <form onSubmit={handleUpdate}>
-            <input type="text" name="numero_processo" placeholder="Número" value={editarProcesso.numero_processo} onChange={handleChange} required />
-            <input type="text" name="descricao" placeholder="Descrição" value={editarProcesso.descricao} onChange={handleChange} required />
-            <input type="text" name="status" placeholder="Status" value={editarProcesso.status} onChange={handleChange} required />
-            <input type="date" name="data_abertura" value={editarProcesso.data_abertura} onChange={handleChange} required />
-            <input type="date" name="data_encerramento" value={editarProcesso.data_encerramento || ''} onChange={handleChange} />
-            <input type="number" name="Clientes_idClientes" placeholder="ID Cliente" value={editarProcesso.Clientes_idClientes} onChange={handleChange} required />
-            <input type="number" name="Advogados_idAdvogados" placeholder="ID Advogado" value={editarProcesso.Advogados_idAdvogados} onChange={handleChange} required />
-            <input type="number" name="Areas_idareas" placeholder="ID Área" value={editarProcesso.Areas_idareas} onChange={handleChange} required />
+          <form onSubmit={handleUpdate} className="formulario">
+
+            <div className="formulario-linha">
+              <label>
+                Número do Processo:
+                <input
+                  type="text"
+                  name="numero_processo"
+                  placeholder="Número do Processo"
+                  value={editarProcesso.numero_processo}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                />
+              </label>
+
+              <label>
+                Descrição:
+                <input
+                  type="text"
+                  name="descricao"
+                  placeholder="Descrição"
+                  value={editarProcesso.descricao}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                />
+              </label>
+            </div>
+
+            <div className="formulario-linha">
+              <label>
+                Status:
+                <select
+                  name="status"
+                  value={editarProcesso.status}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                >
+                  <option value="">Selecione o status</option>
+                  <option value="Em andamento">Em andamento</option>
+                  <option value="Finalizado">Finalizado</option>
+                  <option value="Arquivado">Arquivado</option>
+                </select>
+              </label>
+
+              <label>
+                Data de Abertura:
+                <input
+                  type="date"
+                  name="data_abertura"
+                  value={editarProcesso.data_abertura}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                />
+              </label>
+
+              <label>
+                Data de Encerramento:
+                <input
+                  type="date"
+                  name="data_encerramento"
+                  value={editarProcesso.data_encerramento || ''}
+                  onChange={handleChange}
+                  className="formulario-input"
+                />
+              </label>
+            </div>
+
+            <div className="formulario-linha">
+              <label>
+                ID do Cliente:
+                <input
+                  type="number"
+                  name="Clientes_idClientes"
+                  placeholder="ID do Cliente"
+                  value={editarProcesso.Clientes_idClientes}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                />
+              </label>
+
+              <label>
+                ID do Advogado:
+                <input
+                  type="number"
+                  name="Advogados_idAdvogados"
+                  placeholder="ID do Advogado"
+                  value={editarProcesso.Advogados_idAdvogados}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                />
+              </label>
+
+              <label>
+                Área:
+                <select
+                  name="area"
+                  value={editarProcesso.area}
+                  onChange={handleChange}
+                  required
+                  className="formulario-input"
+                >
+                  <option value="">Selecione a área</option>
+                  <option value="Direito Civil">Direito Civil</option>
+                  <option value="Direito Penal">Direito Penal</option>
+                  <option value="Direito Trabalhista">Direito Trabalhista</option>
+                  <option value="Direito Empresarial">Direito Empresarial</option>
+                </select>
+              </label>
+            </div>
 
             <div className="formulario-botoes">
-              <button type="button" className="botao botao-secundario" onClick={() => setMostrarAlteracoes(!mostrarAlteracoes)}>
-                {mostrarAlteracoes ? 'Ocultar Alterações' : 'Ver Alterações'}
-              </button>
-              <button type="button" className="botao botao-secundario" onClick={() => {
-                setEditarProcesso(null);
-                setAlteracoes([]);
-                setMostrarAlteracoes(false);
-              }}>
+              <button
+                type="button"
+                className="botao botao-secundario"
+                onClick={() => {
+                  setEditarProcesso(null);
+                  setAlteracoes([]);
+                  setMostrarAlteracoes(false);
+                }}
+              >
                 Cancelar
               </button>
-              <button type="submit" className="botao botao-primario">Salvar Alterações</button>
+              <button type="submit" className="botao botao-primario">
+                Salvar Alterações
+              </button>
             </div>
           </form>
-
-          {mostrarAlteracoes && alteracoes.length > 0 && (
-            <div className="tabela-alteracoes-container">
-              <h4>Resumo das Alterações</h4>
-              <table className="tabela-alteracoes">
-                <thead>
-                  <tr>
-                    <th>Campo Alterado</th>
-                    <th>Valor Anterior</th>
-                    <th>Novo Valor</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {alteracoes.map((alt, index) => (
-                    <tr key={index}>
-                      <td>
-                        <strong>{mapearDescricaoCampo(alt.campo)}</strong>
-                        <br /><small>{alt.campo.replace(/_/g, ' ')}</small>
-                      </td>
-                      <td style={{ color: 'var(--erro)', fontWeight: 'bold' }}>
-                        {alt.valorAnterior?.toString() || '---'}
-                      </td>
-                      <td style={{ color: 'var(--sucesso)', fontWeight: 'bold' }}>
-                        {alt.novoValor?.toString() || '---'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
         </div>
       )}
     </div>

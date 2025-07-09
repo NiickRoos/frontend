@@ -1,0 +1,160 @@
+/* === VARIÁVEIS === */
+:root {
+  --vermelho-escuro: #8B0000;
+  --vermelho-claro: #D10000;
+  --gradiente-vermelho: linear-gradient(90deg, #8B0000, #D10000);
+  --cinza-claro: #f5f5f5;
+  --cinza-escuro: #333;
+  --cinza-medio: #666;
+  --branco: #fff;
+  --sucesso: #28a745;
+  --erro: #dc3545;
+  --espaco-pq: 0.5rem;
+  --espaco-md: 1rem;
+  --espaco-gr: 1.5rem;
+  --radius: 6px;
+  --sombra: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* === RESET === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* === TIPOGRAFIA & BODY === */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--cinza-claro);
+  color: var(--cinza-escuro);
+  line-height: 1.6;
+  padding: var(--espaco-gr);
+}
+
+/* === CONTAINER PRINCIPAL === */
+.container-principal {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: var(--branco);
+  border-radius: var(--radius);
+  box-shadow: var(--sombra);
+  padding: var(--espaco-gr);
+}
+
+/* === TÍTULOS === */
+h2 {
+  margin-bottom: var(--espaco-gr);
+  color: var(--vermelho-escuro);
+}
+
+/* === TABELA CONTAINER - responsividade === */
+.tabela-container {
+  overflow-x: auto;
+  margin-bottom: var(--espaco-gr);
+}
+
+/* === TABELA === */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+thead th {
+  background: var(--vermelho-escuro);
+  color: var(--branco);
+  padding: var(--espaco-md);
+  text-align: left;
+  white-space: nowrap;
+}
+
+tbody td {
+  padding: var(--espaco-md);
+  border: 1px solid #ccc;
+  white-space: nowrap;
+}
+
+tbody tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* === FORMULÁRIOS === */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-md);
+  max-width: 600px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="date"],
+select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--cinza-medio);
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+select:focus {
+  outline: none;
+  border-color: var(--vermelho-claro);
+  box-shadow: 0 0 5px var(--vermelho-claro);
+}
+
+/* === BOTÕES === */
+button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--vermelho-escuro);
+  color: var(--branco);
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: var(--vermelho-claro);
+}
+
+/* === MENSAGENS DE ERRO/SUCESSO === */
+.mensagem-erro {
+  background-color: #f8d7da;
+  color: var(--erro);
+  padding: var(--espaco-md);
+  border-left: 4px solid var(--erro);
+  border-radius: var(--radius);
+  margin-bottom: var(--espaco-md);
+}
+
+.mensagem-sucesso {
+  background-color: #d4edda;
+  color: var(--sucesso);
+  padding: var(--espaco-md);
+  border-left: 4px solid var(--sucesso);
+  border-radius: var(--radius);
+  margin-bottom: var(--espaco-md);
+}
+
+/* === RESPONSIVO SIMPLES === */
+@media (max-width: 768px) {
+  body {
+    padding: var(--espaco-md);
+  }
+  
+  form {
+    max-width: 100%;
+  }
+
+  thead th,
+  tbody td {
+    white-space: normal;
+  }
+}
