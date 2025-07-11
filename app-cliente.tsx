@@ -2,7 +2,7 @@ import { Routes, Route, Link } from 'react-router-dom';
 import Processos from './Clientes/processos/processos-clientes';
 import Advogados from './Clientes/advogados/advogados-clientes';
 import Clientes from './Clientes/clientes/clientes-clientes';
-import relatoriosclientes from './Clientes/relatorios/relatorios-clientes'
+import Relatorios from './Clientes/relatorios/relatorios-clientes';
 import './app-cliente.css';
 
 

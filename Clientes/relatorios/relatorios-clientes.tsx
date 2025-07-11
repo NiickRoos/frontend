@@ -16,7 +16,7 @@ function RelatoriosClientes() {
   const [erro, setErro] = useState('');
 
   useEffect(() => {
-    fetch('http://localhost:3000/relatorios-clientes/') // Atualize a rota se necessário
+    fetch('http://localhost:3000/relatorios') 
       .then(response => {
         if (!response.ok) {
           throw new Error('Erro ao buscar relatórios');
@@ -69,5 +69,5 @@ function RelatoriosClientes() {
     </div>
   );
 }
+export default RelatoriosClientes;
 
-export default relatoriosclientes;
