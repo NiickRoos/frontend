@@ -33,15 +33,16 @@ export default function AppAdmin({ voltar }: AppAdminProps) {
             element={
               <>
                 <h1>Área dos Advogados</h1>
-                <h2>Bem-vindo ao Portal dos Advogados</h2>
+                <h2>Bem-vindo ao Portal dos Advogados!</h2>
                 <p>
-                  Nesta área, você pode gerenciar seus processos, clientes e informações profissionais.
+                  Nesta área, você pode gerenciar seus processos, clientes e informações profissionais e 
+                  ver Relatórios.
                   Use o menu acima para navegar entre as seções.
                 </p>
                 <h2>Funcionalidades</h2>
                 <p>
-                  Visualize processos em andamento, consulte dados de clientes e mantenha seu cadastro atualizado
-                  para uma gestão jurídica eficiente e organizada.
+                  Realize alterações em processos, clientes ou advogados já cadastrados ou exclua informações
+                  cadastradas, garantindo assim  melhor organização!
                 </p>
               </>
             }

@@ -12,27 +12,23 @@ interface Cliente {
   estado: string;
 }
 
-interface Alteracao {
-  campo: string;
-  valorAnterior: any;
-  novoValor: any;
-}
-
 export default function ClientesAdm() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [editarCliente, setEditarCliente] = useState<Cliente | null>(null);
   const [erro, setErro] = useState<string | null>(null);
-  const [alteracoes, setAlteracoes] = useState<Alteracao[]>([]);
-  const [mostrarAlteracoes, setMostrarAlteracoes] = useState(false);
+  const [sucesso, setSucesso] = useState<string | null>(null);
+  const [carregando, setCarregando] = useState<boolean>(false);
 
   useEffect(() => {
+    setCarregando(true);
     fetch('http://localhost:3000/clientes')
       .then(res => {
         if (!res.ok) throw new Error('Erro ao buscar clientes');
         return res.json();
       })
       .then(data => setClientes(data))
-      .catch(err => setErro(err.message));
+      .catch(err => setErro(err.message))
+      .finally(() => setCarregando(false));
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -58,27 +54,16 @@ export default function ClientesAdm() {
 
     if (!validarCampo(name, value)) return;
 
-    const valorAnterior = (editarCliente as any)[name];
-
-    if (valorAnterior !== value) {
-      setAlteracoes(prev => {
-        const existente = prev.find(a => a.campo === name);
-        if (existente) {
-          return prev.map(a =>
-            a.campo === name ? { ...a, novoValor: value } : a
-          );
-        } else {
-          return [...prev, { campo: name, valorAnterior, novoValor: value }];
-        }
-      });
-    }
-
     setEditarCliente({ ...editarCliente, [name]: value });
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editarCliente) return;
+
+    setErro(null);
+    setSucesso(null);
+    setCarregando(true);
 
     try {
       const resposta = await fetch(`http://localhost:3000/clientes/${editarCliente.idClientes}`, {
@@ -90,55 +75,46 @@ export default function ClientesAdm() {
       const dados = await resposta.json();
 
       if (resposta.ok) {
-        alert('Cliente atualizado com sucesso!');
         setClientes(clientes.map(c => c.idClientes === editarCliente.idClientes ? editarCliente : c));
         setEditarCliente(null);
-        setAlteracoes([]);
-        setMostrarAlteracoes(false);
+        setSucesso('Cliente atualizado com sucesso!');
       } else {
-        alert(`Erro: ${dados.error}`);
+        setErro(dados.error || 'Erro desconhecido ao atualizar cliente.');
       }
     } catch (error) {
       console.error(error);
-      alert('Erro ao atualizar cliente');
+      setErro('Erro ao atualizar cliente. Tente novamente mais tarde.');
+    } finally {
+      setCarregando(false);
     }
   };
 
   const handleDelete = async (id: number) => {
     if (!window.confirm('Tem certeza que deseja deletar este cliente?')) return;
 
+    setErro(null);
+    setSucesso(null);
+    setCarregando(true);
+
     try {
       const resposta = await fetch(`http://localhost:3000/clientes/${id}`, { method: 'DELETE' });
       const dados = await resposta.json();
 
       if (resposta.ok) {
-        alert('Cliente deletado com sucesso!');
         setClientes(clientes.filter(c => c.idClientes !== id));
         if (editarCliente?.idClientes === id) {
           setEditarCliente(null);
-          setAlteracoes([]);
-          setMostrarAlteracoes(false);
         }
+        setSucesso('Cliente deletado com sucesso!');
       } else {
-        alert(`Erro: ${dados.error}`);
+        setErro(dados.error || 'Erro desconhecido ao deletar cliente.');
       }
     } catch (error) {
       console.error(error);
-      alert('Erro ao deletar cliente');
+      setErro('Erro ao deletar cliente. Tente novamente mais tarde.');
+    } finally {
+      setCarregando(false);
     }
-  };
-
-  const mapearDescricaoCampo = (campo: string): string => {
-    const mapa: Record<string, string> = {
-      nome: 'Nome',
-      email: 'Email',
-      telefone: 'Telefone',
-      documentos: 'Documentos',
-      tipo_de_documento: 'Tipo de Documento',
-      endereco: 'Endereço',
-      estado: 'Estado',
-    };
-    return mapa[campo] || campo.replace(/_/g, ' ');
   };
 
   return (
@@ -147,6 +123,8 @@ export default function ClientesAdm() {
       <p className="subtitulo">Abaixo estão listados todos os clientes cadastrados no sistema.</p>
 
       {erro && <div className="mensagem mensagem-erro">{erro}</div>}
+      {sucesso && <div className="mensagem mensagem-sucesso">{sucesso}</div>}
+      {carregando && <div className="mensagem mensagem-info">Carregando...</div>}
 
       <div className="tabela-container">
         <table className="tabela">
@@ -179,15 +157,17 @@ export default function ClientesAdm() {
                     className="botao botao-editar"
                     onClick={() => {
                       setEditarCliente(c);
-                      setAlteracoes([]);
-                      setMostrarAlteracoes(false);
+                      setErro(null);
+                      setSucesso(null);
                     }}
+                    disabled={carregando}
                   >
                     Editar
                   </button>
                   <button
                     className="botao botao-deletar"
                     onClick={() => handleDelete(c.idClientes)}
+                    disabled={carregando}
                   >
                     Excluir
                   </button>
@@ -207,7 +187,7 @@ export default function ClientesAdm() {
               <input
                 type="text"
                 name="nome"
-                placeholder="Nome completo"
+                placeholder="Ex: Maria Silva"
                 value={editarCliente.nome}
                 onChange={handleChange}
                 required
@@ -220,7 +200,7 @@ export default function ClientesAdm() {
               <input
                 type="email"
                 name="email"
-                placeholder="Email"
+                placeholder="Ex: maria.silva@email.com"
                 value={editarCliente.email}
                 onChange={handleChange}
                 required
@@ -233,7 +213,7 @@ export default function ClientesAdm() {
               <input
                 type="text"
                 name="telefone"
-                placeholder="Somente números"
+                placeholder="Ex: 11987654321 (somente números)"
                 value={editarCliente.telefone}
                 onChange={handleChange}
                 required
@@ -246,7 +226,7 @@ export default function ClientesAdm() {
               <input
                 type="text"
                 name="documentos"
-                placeholder="Somente números"
+                placeholder="Ex: 12345678901 (CPF) ou 12345678000199 (CNPJ)"
                 value={editarCliente.documentos}
                 onChange={handleChange}
                 required
@@ -273,7 +253,7 @@ export default function ClientesAdm() {
               <input
                 type="text"
                 name="endereco"
-                placeholder="Endereço"
+                placeholder="Ex: Rua das Flores, 123, Centro"
                 value={editarCliente.endereco}
                 onChange={handleChange}
                 required
@@ -286,7 +266,7 @@ export default function ClientesAdm() {
               <input
                 type="text"
                 name="estado"
-                placeholder="Somente letras"
+                placeholder="Ex: São Paulo"
                 value={editarCliente.estado}
                 onChange={handleChange}
                 required
@@ -298,52 +278,20 @@ export default function ClientesAdm() {
               <button
                 type="button"
                 className="botao botao-secundario"
-                onClick={() => {
-                  setEditarCliente(null);
-                  setAlteracoes([]);
-                  setMostrarAlteracoes(false);
-                }}
+                onClick={() => setEditarCliente(null)}
+                disabled={carregando}
               >
                 Cancelar
               </button>
-              <button type="submit" className="botao botao-primario">
+              <button
+                type="submit"
+                className="botao botao-primario"
+                disabled={carregando}
+              >
                 Salvar Alterações
               </button>
             </div>
           </form>
-
-          {alteracoes.length > 0 && mostrarAlteracoes && (
-            <div className="tabela-alteracoes-container">
-              <h4>Alterações realizadas:</h4>
-              <table className="tabela-alteracoes">
-                <thead>
-                  <tr>
-                    <th>Campo</th>
-                    <th>Valor Anterior</th>
-                    <th>Novo Valor</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {alteracoes.map(({ campo, valorAnterior, novoValor }) => (
-                    <tr key={campo}>
-                      <td>{mapearDescricaoCampo(campo)}</td>
-                      <td>{valorAnterior}</td>
-                      <td>{novoValor}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {alteracoes.length > 0 && (
-            <button
-              className="botao botao-secundario"
-              onClick={() => setMostrarAlteracoes(!mostrarAlteracoes)}
-            >
-              {mostrarAlteracoes ? 'Esconder Alterações' : 'Mostrar Alterações'}
-            </button>
-          )}
         </div>
       )}
     </div>

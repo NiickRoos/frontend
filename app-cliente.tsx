@@ -43,7 +43,8 @@ export default function AppCliente({ voltar }: AppClienteProps) {
                 <h2>Como Usar</h2>
                 <p>
                   Navegue pelas seções para consultar ou gerenciar suas informações. Em “Processos” você acompanha os processos jurídicos,
-                  em “Advogados” visualiza os profissionais disponíveis e em “Clientes” acessa dados dos clientes cadastrados.
+                  em “Advogados” visualiza os profissionais disponíveis, em “Clientes” acessa dados dos clientes cadastrados e em "relatorios"
+                  você pode consultar como andam cada caso cadastrado na nossa gestão juridica!
                 </p>
               </>
             }

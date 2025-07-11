@@ -30,19 +30,31 @@ export default function AdvogadosAdm() {
 
     const { name, value } = e.target;
 
+    // Define limites máximos para cada campo
+    const limites: Record<string, number> = {
+      nome: 100,
+      oab: 10, // Limite de 10 caracteres para OAB
+      email: 100,
+      telefone: 15,
+      especialidade: 50,
+    };
+
+    // Validação de caracteres permitidos
     const validarCampo = (campo: string, valor: string): boolean => {
       const apenasNumeros = /^[0-9]*$/;
       const apenasLetras = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]*$/;
 
+      if (valor.length > (limites[campo] || 100)) return false;
+
       switch (campo) {
         case 'telefone':
         case 'oab':
-          return apenasNumeros.test(valor); // apenas números
+          return apenasNumeros.test(valor);
         case 'nome':
         case 'especialidade':
-          return apenasLetras.test(valor); // apenas letras
+          return apenasLetras.test(valor);
         case 'email':
-          return true; // email livre
+          return true;
         default:
           return true;
       }
@@ -178,6 +190,7 @@ export default function AdvogadosAdm() {
                 value={editarAdvogado.nome}
                 onChange={handleChange}
                 required
+                maxLength={100}
                 className="formulario-input"
               />
             </label>
@@ -191,6 +204,7 @@ export default function AdvogadosAdm() {
                 value={editarAdvogado.oab}
                 onChange={handleChange}
                 required
+                maxLength={10}
                 className="formulario-input"
               />
             </label>
@@ -204,6 +218,7 @@ export default function AdvogadosAdm() {
                 value={editarAdvogado.email}
                 onChange={handleChange}
                 required
+                maxLength={100}
                 className="formulario-input"
               />
             </label>
@@ -217,6 +232,7 @@ export default function AdvogadosAdm() {
                 value={editarAdvogado.telefone}
                 onChange={handleChange}
                 required
+                maxLength={15}
                 className="formulario-input"
               />
             </label>
@@ -230,6 +246,7 @@ export default function AdvogadosAdm() {
                 value={editarAdvogado.especialidade}
                 onChange={handleChange}
                 required
+                maxLength={50}
                 className="formulario-input"
               />
             </label>
