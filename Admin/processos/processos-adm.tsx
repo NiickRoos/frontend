@@ -13,18 +13,10 @@ interface Processo {
   area: 'Direito Civil' | 'Direito Penal' | 'Direito Trabalhista' | 'Direito Empresarial';
 }
 
-interface Alteracao {
-  campo: string;
-  valorAnterior: any;
-  novoValor: any;
-}
-
 export default function PrAdm() {
   const [processos, setProcessos] = useState<Processo[]>([]);
   const [editarProcesso, setEditarProcesso] = useState<Processo | null>(null);
   const [erro, setErro] = useState<string | null>(null);
-  const [alteracoes, setAlteracoes] = useState<Alteracao[]>([]);
-  const [mostrarAlteracoes, setMostrarAlteracoes] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:3000/processos')
@@ -40,20 +32,6 @@ export default function PrAdm() {
     if (!editarProcesso) return;
     const { name, value } = e.target;
     const novoValor = name.includes('id') ? Number(value) : value;
-    const valorAnterior = (editarProcesso as any)[name];
-
-    if (valorAnterior !== novoValor) {
-      setAlteracoes(prev => {
-        const existente = prev.find(a => a.campo === name);
-        if (existente) {
-          return prev.map(a =>
-            a.campo === name ? { ...a, novoValor } : a
-          );
-        } else {
-          return [...prev, { campo: name, valorAnterior, novoValor }];
-        }
-      });
-    }
 
     setEditarProcesso({
       ...editarProcesso,
@@ -84,14 +62,16 @@ export default function PrAdm() {
         alert('Processo atualizado com sucesso!');
         setProcessos(processos.map(p => p.idprocessos === processoParaEnvio.idprocessos ? processoParaEnvio : p));
         setEditarProcesso(null);
-        setAlteracoes([]);
-        setMostrarAlteracoes(false);
+        setErro(null);
       } else {
-        alert(`Erro: ${dados.error}`);
+        const msgErro = dados.error || 'Erro desconhecido ao atualizar processo.';
+        setErro(msgErro);
+        alert(`Erro: ${msgErro}\n\nVerifique se o servidor está acessível, se os ips estão corretos.`);
       }
     } catch (error) {
       console.error(error);
-      alert('Erro ao atualizar processo');
+      setErro('Erro ao atualizar processo. Pode ser problema de conexão ou configuração de IP/porta.');
+      alert('Erro ao atualizar processo. Verifique se o servidor backend está acessível no IP e porta configurados e se não há bloqueios de rede.');
     }
   };
 
@@ -110,14 +90,14 @@ export default function PrAdm() {
         setProcessos(processos.filter(p => p.idprocessos !== id));
         if (editarProcesso?.idprocessos === id) {
           setEditarProcesso(null);
-          setAlteracoes([]);
         }
       } else {
+        setErro(dados.error || 'Erro ao deletar processo');
         alert(`Erro: ${dados.error}`);
       }
     } catch (error) {
       console.error(error);
-      alert('Erro ao deletar processo');
+      setErro('Erro ao deletar processo');
     }
   };
 
@@ -165,8 +145,7 @@ export default function PrAdm() {
                         data_abertura: p.data_abertura?.slice(0, 10),
                         data_encerramento: p.data_encerramento?.slice(0, 10) || ''
                       });
-                      setAlteracoes([]);
-                      setMostrarAlteracoes(false);
+                      setErro(null);
                     }}
                   >
                     Editar
@@ -183,134 +162,135 @@ export default function PrAdm() {
 
       {editarProcesso && (
         <div className="formulario-container">
-           <form onSubmit={handleUpdate} className="formulario-vertical">
-  <label className="formulario-label">
-    Número do Processo:
-    <input
-      type="text"
-      name="numero_processo"
-      placeholder="Número do Processo"
-      value={editarProcesso.numero_processo}
-      onChange={handleChange}
-      required
-      className="formulario-input"
-    />
-  </label>
+          <form onSubmit={handleUpdate} className="formulario-vertical">
+            <label className="formulario-label">
+              Número do Processo:
+              <input
+                type="text"
+                name="numero_processo"
+                placeholder="Número do Processo"
+                value={editarProcesso.numero_processo}
+                onChange={handleChange}
+                required
+                className="formulario-input"
+              />
+            </label>
 
-  <label className="formulario-label">
-    Descrição:
-    <input
-      type="text"
-      name="descricao"
-      placeholder="Descrição"
-      value={editarProcesso.descricao}
-      onChange={handleChange}
-      required
-      className="formulario-input"
-    />
-  </label>
+            <label className="formulario-label">
+              Descrição:
+              <input
+                type="text"
+                name="descricao"
+                placeholder="Descrição"
+                value={editarProcesso.descricao}
+                onChange={handleChange}
+                required
+                className="formulario-input"
+              />
+            </label>
 
-  <label className="formulario-label">
-    Status:
-    <select
-      name="status"
-      value={editarProcesso.status}
-      onChange={handleChange}
-      required
-      className="formulario-input"
-    >
-      <option value="">Selecione o status</option>
-      <option value="Em andamento">Em andamento</option>
-      <option value="Finalizado">Finalizado</option>
-      <option value="Arquivado">Arquivado</option>
-    </select>
-  </label>
+            <label className="formulario-label">
+              Status:
+              <select
+                name="status"
+                value={editarProcesso.status}
+                onChange={handleChange}
+                required
+                className="formulario-input"
+              >
+                <option value="">Selecione o status</option>
+                <option value="Em andamento">Em andamento</option>
+                <option value="Finalizado">Finalizado</option>
+                <option value="Arquivado">Arquivado</option>
+              </select>
+            </label>
 
-  <label className="formulario-label">
-    Data de Abertura:
-    <input
-      type="date"
-      name="data_abertura"
-      value={editarProcesso.data_abertura}
-      onChange={handleChange}
-      required
-      className="formulario-input"
-    />
-  </label>
+            <label className="formulario-label">
+              Data de Abertura:
+              <input
+                type="date"
+                name="data_abertura"
+                value={editarProcesso.data_abertura}
+                onChange={handleChange}
+                required
+                className="formulario-input"
+              />
+            </label>
 
-  <label className="formulario-label">
-    Data de Encerramento:
-    <input
-      type="date"
-      name="data_encerramento"
-      value={editarProcesso.data_encerramento || ''}
-      onChange={handleChange}
-      className="formulario-input"
-    />
-  </label>
+            <label className="formulario-label">
+              Data de Encerramento:
+              <input
+                type="date"
+                name="data_encerramento"
+                value={editarProcesso.data_encerramento || ''}
+                onChange={handleChange}
+                className="formulario-input"
+              />
+            </label>
 
-  <label className="formulario-label">
-    ID do Cliente:
-    <input
-      type="number"
-      name="Clientes_idClientes"
-      placeholder="ID do Cliente"
-      value={editarProcesso.Clientes_idClientes}
-      onChange={handleChange}
-      required
-      className="formulario-input"
-    />
-  </label>
+            <label className="formulario-label">
+              ID do Cliente:
+              <input
+                type="number"
+                name="Clientes_idClientes"
+                placeholder="ID do Cliente (verifique se existe)"
+                value={editarProcesso.Clientes_idClientes}
+                onChange={handleChange}
+                required
+                className="formulario-input"
+              />
+            </label>
 
-  <label className="formulario-label">
-    ID do Advogado:
-    <input
-      type="number"
-      name="Advogados_idAdvogados"
-      placeholder="ID do Advogado"
-      value={editarProcesso.Advogados_idAdvogados}
-      onChange={handleChange}
-      required
-      className="formulario-input"
-    />
-  </label>
+            <label className="formulario-label">
+              ID do Advogado:
+              <input
+                type="number"
+                name="Advogados_idAdvogados"
+                placeholder="ID do Advogado (verifique se existe)"
+                value={editarProcesso.Advogados_idAdvogados}
+                onChange={handleChange}
+                required
+                className="formulario-input"
+              />
+            </label>
 
-  <label className="formulario-label">
-    Área:
-    <select
-      name="area"
-      value={editarProcesso.area}
-      onChange={handleChange}
-      required
-      className="formulario-input"
-    >
-      <option value="">Selecione a área</option>
-      <option value="Direito Civil">Direito Civil</option>
-      <option value="Direito Penal">Direito Penal</option>
-      <option value="Direito Trabalhista">Direito Trabalhista</option>
-      <option value="Direito Empresarial">Direito Empresarial</option>
-    </select>
-  </label>
+            <label className="formulario-label">
+              Área:
+              <select
+                name="area"
+                value={editarProcesso.area}
+                onChange={handleChange}
+                required
+                className="formulario-input"
+              >
+                <option value="">Selecione a área</option>
+                <option value="Direito Civil">Direito Civil</option>
+                <option value="Direito Penal">Direito Penal</option>
+                <option value="Direito Trabalhista">Direito Trabalhista</option>
+                <option value="Direito Empresarial">Direito Empresarial</option>
+              </select>
+            </label>
 
-  <div className="formulario-botoes">
-    <button
-      type="button"
-      className="botao botao-secundario"
-      onClick={() => {
-        setEditarProcesso(null);
-        setAlteracoes([]);
-        setMostrarAlteracoes(false);
-      }}
-    >
-      Cancelar
-    </button>
-    <button type="submit" className="botao botao-primario">
-      Salvar Alterações
-    </button>
-  </div>
-</form>
-</div>
-)}
-</div> 
+            {erro && <div className="mensagem mensagem-erro">{erro}</div>}
+
+            <div className="formulario-botoes">
+              <button
+                type="button"
+                className="botao botao-secundario"
+                onClick={() => {
+                  setEditarProcesso(null);
+                  setErro(null);
+                }}
+              >
+                Cancelar
+              </button>
+              <button type="submit" className="botao botao-primario">
+                Salvar Alterações
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+    </div>
   );
-} 
+}

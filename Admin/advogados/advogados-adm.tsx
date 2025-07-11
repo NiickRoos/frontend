@@ -10,18 +10,10 @@ interface Advogado {
   especialidade: string;
 }
 
-interface Alteracao {
-  campo: string;
-  valorAnterior: any;
-  novoValor: any;
-}
-
 export default function AdvogadosAdm() {
   const [advogados, setAdvogados] = useState<Advogado[]>([]);
   const [editarAdvogado, setEditarAdvogado] = useState<Advogado | null>(null);
   const [erro, setErro] = useState<string | null>(null);
-  const [alteracoes, setAlteracoes] = useState<Alteracao[]>([]);
-  const [mostrarAlteracoes, setMostrarAlteracoes] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:3000/advogados')
@@ -35,23 +27,33 @@ export default function AdvogadosAdm() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!editarAdvogado) return;
+
     const { name, value } = e.target;
-    const valorAnterior = (editarAdvogado as any)[name];
 
-    if (valorAnterior !== value) {
-      setAlteracoes(prev => {
-        const existente = prev.find(a => a.campo === name);
-        if (existente) {
-          return prev.map(a =>
-            a.campo === name ? { ...a, novoValor: value } : a
-          );
-        } else {
-          return [...prev, { campo: name, valorAnterior, novoValor: value }];
-        }
-      });
-    }
+    const validarCampo = (campo: string, valor: string): boolean => {
+      const apenasNumeros = /^[0-9]*$/;
+      const apenasLetras = /^[A-Za-zÀ-ÖØ-öø-ÿ\s]*$/;
 
-    setEditarAdvogado({ ...editarAdvogado, [name]: value });
+      switch (campo) {
+        case 'telefone':
+        case 'oab':
+          return apenasNumeros.test(valor); // apenas números
+        case 'nome':
+        case 'especialidade':
+          return apenasLetras.test(valor); // apenas letras
+        case 'email':
+          return true; // email livre
+        default:
+          return true;
+      }
+    };
+
+    if (!validarCampo(name, value)) return;
+
+    setEditarAdvogado({
+      ...editarAdvogado,
+      [name]: value,
+    });
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
@@ -73,14 +75,16 @@ export default function AdvogadosAdm() {
           a.idAdvogados === editarAdvogado.idAdvogados ? editarAdvogado : a
         ));
         setEditarAdvogado(null);
-        setAlteracoes([]);
-        setMostrarAlteracoes(false);
+        setErro(null);
       } else {
-        alert(`Erro: ${dados.error}`);
+        const msgErro = dados.error || 'Erro desconhecido ao atualizar advogado.';
+        setErro(msgErro);
+        alert(`Erro: ${msgErro}\n\nVerifique se os dados estão corretos e se o backend está acessível.`);
       }
     } catch (error) {
       console.error(error);
-      alert('Erro ao atualizar advogado');
+      setErro('Erro ao atualizar advogado. Verifique a conexão com o servidor.');
+      alert('Erro ao atualizar advogado. Verifique a conexão, IP, porta e se o backend está online.');
     }
   };
 
@@ -99,27 +103,15 @@ export default function AdvogadosAdm() {
         setAdvogados(advogados.filter(a => a.idAdvogados !== id));
         if (editarAdvogado?.idAdvogados === id) {
           setEditarAdvogado(null);
-          setAlteracoes([]);
-          setMostrarAlteracoes(false);
         }
       } else {
+        setErro(dados.error || 'Erro ao deletar advogado');
         alert(`Erro: ${dados.error}`);
       }
     } catch (error) {
       console.error(error);
-      alert('Erro ao deletar advogado');
+      setErro('Erro ao deletar advogado');
     }
-  };
-
-  const mapearDescricaoCampo = (campo: string): string => {
-    const mapa: Record<string, string> = {
-      nome: 'Nome',
-      oab: 'Número da OAB',
-      email: 'Email',
-      telefone: 'Telefone',
-      especialidade: 'Especialidade',
-    };
-    return mapa[campo] || campo.replace(/_/g, ' ');
   };
 
   return (
@@ -127,7 +119,7 @@ export default function AdvogadosAdm() {
       <h2 className="titulo-principal">Painel de Gerenciamento de Advogados</h2>
       <p className="subtitulo">Abaixo estão listados todos os advogados cadastrados no sistema.</p>
 
-      {erro && <p className="mensagem mensagem-erro">{erro}</p>}
+      {erro && <div className="mensagem mensagem-erro">{erro}</div>}
 
       <div className="tabela-container">
         <table className="tabela">
@@ -143,7 +135,7 @@ export default function AdvogadosAdm() {
             </tr>
           </thead>
           <tbody>
-            {advogados.map(a => (
+            {advogados.map((a) => (
               <tr key={a.idAdvogados}>
                 <td>{a.idAdvogados}</td>
                 <td>{a.nome}</td>
@@ -156,8 +148,7 @@ export default function AdvogadosAdm() {
                     className="botao botao-editar"
                     onClick={() => {
                       setEditarAdvogado(a);
-                      setAlteracoes([]);
-                      setMostrarAlteracoes(false);
+                      setErro(null);
                     }}
                   >
                     Editar
@@ -177,79 +168,73 @@ export default function AdvogadosAdm() {
 
       {editarAdvogado && (
         <div className="formulario-container">
-          <h3 className="formulario-titulo">Editar Advogado #{editarAdvogado.idAdvogados}</h3>
-          <form onSubmit={handleUpdate} className="formulario">
+          <form onSubmit={handleUpdate} className="formulario-vertical">
+            <label className="formulario-label">
+              Nome:
+              <input
+                type="text"
+                name="nome"
+                placeholder="Nome completo"
+                value={editarAdvogado.nome}
+                onChange={handleChange}
+                required
+                className="formulario-input"
+              />
+            </label>
 
-            <div className="formulario-linha">
-              <label>
-                Nome:
-                <input
-                  type="text"
-                  name="nome"
-                  placeholder="Nome completo"
-                  value={editarAdvogado.nome}
-                  onChange={handleChange}
-                  required
-                  className="formulario-input"
-                />
-              </label>
+            <label className="formulario-label">
+              Número da OAB:
+              <input
+                type="text"
+                name="oab"
+                placeholder="Número da OAB (somente números)"
+                value={editarAdvogado.oab}
+                onChange={handleChange}
+                required
+                className="formulario-input"
+              />
+            </label>
 
-              <label>
-                Número da OAB:
-                <input
-                  type="text"
-                  name="oab"
-                  placeholder="Número da OAB"
-                  value={editarAdvogado.oab}
-                  onChange={handleChange}
-                  required
-                  className="formulario-input"
-                />
-              </label>
-            </div>
+            <label className="formulario-label">
+              Email:
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={editarAdvogado.email}
+                onChange={handleChange}
+                required
+                className="formulario-input"
+              />
+            </label>
 
-            <div className="formulario-linha">
-              <label>
-                Email:
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  value={editarAdvogado.email}
-                  onChange={handleChange}
-                  required
-                  className="formulario-input"
-                />
-              </label>
+            <label className="formulario-label">
+              Telefone:
+              <input
+                type="text"
+                name="telefone"
+                placeholder="Telefone (somente números)"
+                value={editarAdvogado.telefone}
+                onChange={handleChange}
+                required
+                className="formulario-input"
+              />
+            </label>
 
-              <label>
-                Telefone:
-                <input
-                  type="text"
-                  name="telefone"
-                  placeholder="Telefone"
-                  value={editarAdvogado.telefone}
-                  onChange={handleChange}
-                  required
-                  className="formulario-input"
-                />
-              </label>
-            </div>
+            <label className="formulario-label">
+              Especialidade:
+              <input
+                type="text"
+                name="especialidade"
+                placeholder="Especialidade"
+                value={editarAdvogado.especialidade}
+                onChange={handleChange}
+                required
+                className="formulario-input"
+              />
+            </label>
 
-            <div className="formulario-linha">
-              <label>
-                Especialidade:
-                <input
-                  type="text"
-                  name="especialidade"
-                  placeholder="Especialidade"
-                  value={editarAdvogado.especialidade}
-                  onChange={handleChange}
-                  required
-                  className="formulario-input"
-                />
-              </label>
-            </div>
+            {erro && <div className="mensagem mensagem-erro">{erro}</div>}
 
             <div className="formulario-botoes">
               <button
@@ -257,8 +242,7 @@ export default function AdvogadosAdm() {
                 className="botao botao-secundario"
                 onClick={() => {
                   setEditarAdvogado(null);
-                  setAlteracoes([]);
-                  setMostrarAlteracoes(false);
+                  setErro(null);
                 }}
               >
                 Cancelar
@@ -268,36 +252,6 @@ export default function AdvogadosAdm() {
               </button>
             </div>
           </form>
-
-          {alteracoes.length > 0 && (
-            <div className="alteracoes-container">
-              <h4>Alterações realizadas:</h4>
-              <table className="tabela-alteracoes">
-                <thead>
-                  <tr>
-                    <th>Campo</th>
-                    <th>Valor Anterior</th>
-                    <th>Novo Valor</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {alteracoes.map(({ campo, valorAnterior, novoValor }) => (
-                    <tr key={campo}>
-                      <td>{mapearDescricaoCampo(campo)}</td>
-                      <td>{valorAnterior}</td>
-                      <td>{novoValor}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <button
-                className="botao botao-secundario"
-                onClick={() => setMostrarAlteracoes(!mostrarAlteracoes)}
-              >
-                {mostrarAlteracoes ? 'Esconder' : 'Mostrar'} Alterações
-              </button>
-            </div>
-          )}
         </div>
       )}
     </div>
