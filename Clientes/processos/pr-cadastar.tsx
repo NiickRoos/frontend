@@ -154,7 +154,7 @@ export default function PrCadastrar() {
         <input
           type="text"
           name="numero_processo"
-          placeholder="Ex: 1234567-89.2023.8.01.0001"
+          placeholder="Ex: 2023-CIV-001"
           value={processo.numero_processo}
           onChange={handleChange}
           required
