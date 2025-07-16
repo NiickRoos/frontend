@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import '../relatorios/relatorios-clientes.css'; // Certifique-se de que esse arquivo existe ou atualize o caminho
+import '../relatorios/relatorios-clientes.css';
 
 interface Relatorio {
   numero_processo: string;
